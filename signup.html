@@ -148,6 +148,11 @@
         background: #c0392b;
       }
 
+      .create-btn:disabled {
+        background: #ccc;
+        cursor: not-allowed;
+      }
+
       .login-link {
         text-align: center;
         margin-top: 20px;
@@ -158,6 +163,13 @@
         color: #e74c3c;
         text-decoration: none;
         font-weight: 600;
+      }
+
+      .loading {
+        display: none;
+        text-align: center;
+        margin-top: 10px;
+        color: #666;
       }
 
       footer {
@@ -385,7 +397,8 @@
           <label>Password</label>
           <input type="password" id="password" required />
         </div>
-        <button type="submit" class="create-btn">Create account</button>
+        <button type="submit" class="create-btn" id="submitBtn">Create account</button>
+        <div class="loading" id="loading">Creating account...</div>
       </form>
       <p class="login-link">
         Already have an account? <a href="Login.html">Log in</a>
@@ -462,47 +475,54 @@
 
     <script src="auth.js"></script>
     <script>
-      document
-        .getElementById("signupForm")
-        .addEventListener("submit", function (e) {
-          e.preventDefault();
+      document.getElementById("signupForm").addEventListener("submit", async function (e) {
+        e.preventDefault();
 
-          const name = document.getElementById("name").value.trim();
-          const surname = document.getElementById("surname").value.trim();
-          const email = document.getElementById("email").value.trim();
-          const username = document.getElementById("username").value.trim();
-          const password = document.getElementById("password").value.trim();
+        const name = document.getElementById("name").value.trim();
+        const surname = document.getElementById("surname").value.trim();
+        const email = document.getElementById("email").value.trim();
+        const username = document.getElementById("username").value.trim();
+        const password = document.getElementById("password").value.trim();
 
-          if (!name || !surname || !email || !username || !password) {
-            alert("Please fill all fields!");
-            return;
-          }
+        if (!name || !surname || !email || !username || !password) {
+          alert("Please fill all fields!");
+          return;
+        }
 
-          const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
-          if (!emailRegex.test(email)) {
-            alert("Please enter a valid email address!");
-            return;
-          }
+        const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+        if (!emailRegex.test(email)) {
+          alert("Please enter a valid email address!");
+          return;
+        }
 
-          if (username.length < 3) {
-            alert("Username must be at least 3 characters!");
-            return;
-          }
+        if (username.length < 3) {
+          alert("Username must be at least 3 characters!");
+          return;
+        }
 
-          if (password.length < 6) {
-            alert("Password must be at least 6 characters!");
-            return;
-          }
+        if (password.length < 6) {
+          alert("Password must be at least 6 characters!");
+          return;
+        }
 
-          const result = registerUser(name, surname, email, username, password);
+        const submitBtn = document.getElementById("submitBtn");
+        const loading = document.getElementById("loading");
+        
+        submitBtn.disabled = true;
+        loading.style.display = "block";
 
-          if (result.success) {
-            alert(result.message);
-            window.location.href = "Login.html";
-          } else {
-            alert(result.message);
-          }
-        });
+        const result = await registerUser(name, surname, email, username, password);
+
+        submitBtn.disabled = false;
+        loading.style.display = "none";
+
+        if (result.success) {
+          alert(result.message);
+          window.location.href = "Login.html";
+        } else {
+          alert(result.message);
+        }
+      });
     </script>
   </body>
 </html>

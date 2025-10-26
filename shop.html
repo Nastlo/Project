@@ -253,6 +253,7 @@
         background-color: white;
         transition: box-shadow 0.3s, transform 0.3s;
         cursor: pointer;
+        position: relative;
       }
 
       .product-card:hover {
@@ -297,6 +298,16 @@
 
       .rating-stars {
         color: #ffc107;
+        cursor: pointer;
+      }
+
+      .rating-stars span {
+        cursor: pointer;
+        transition: color 0.2s;
+      }
+
+      .rating-stars span:hover {
+        color: #ff9800;
       }
 
       .rating-count {
@@ -317,6 +328,66 @@
 
       .add-to-cart-btn:hover {
         background-color: #555;
+      }
+
+      .rating-modal {
+        display: none;
+        position: fixed;
+        z-index: 1000;
+        left: 0;
+        top: 0;
+        width: 100%;
+        height: 100%;
+        background-color: rgba(0,0,0,0.5);
+      }
+
+      .rating-modal-content {
+        background-color: white;
+        margin: 15% auto;
+        padding: 30px;
+        border-radius: 8px;
+        width: 400px;
+        text-align: center;
+      }
+
+      .rating-modal-stars {
+        font-size: 40px;
+        margin: 20px 0;
+        cursor: pointer;
+      }
+
+      .rating-modal-stars span {
+        color: #ddd;
+        transition: color 0.2s;
+      }
+
+      .rating-modal-stars span.active,
+      .rating-modal-stars span:hover {
+        color: #ffc107;
+      }
+
+      .rating-modal-btns {
+        display: flex;
+        gap: 10px;
+        margin-top: 20px;
+      }
+
+      .rating-modal-btns button {
+        flex: 1;
+        padding: 10px;
+        border: none;
+        border-radius: 4px;
+        cursor: pointer;
+        font-weight: 500;
+      }
+
+      .rating-cancel-btn {
+        background: #ccc;
+      }
+
+      .rating-submit-btn {
+        background: #e53935;
+        color: white;
       }
 
       footer {
@@ -520,6 +591,24 @@
       </div>
     </div>
 
+    <div id="ratingModal" class="rating-modal">
+      <div class="rating-modal-content">
+        <h2>Rate this product</h2>
+        <p id="ratingProductName"></p>
+        <div class="rating-modal-stars" id="modalStars">
+          <span data-rating="1">★</span>
+          <span data-rating="2">★</span>
+          <span data-rating="3">★</span>
+          <span data-rating="4">★</span>
+          <span data-rating="5">★</span>
+        </div>
+        <div class="rating-modal-btns">
+          <button class="rating-cancel-btn" onclick="closeRatingModal()">Cancel</button>
+          <button class="rating-submit-btn" onclick="submitRating()">Submit</button>
+        </div>
+      </div>
+    </div>
+
     <footer>
       <div class="footer-content">
         <div class="footer-column footer-subscribe">
@@ -577,10 +666,152 @@
 
     <script src="auth.js"></script>
     <script>
-      const apiUrl = "http://195.26.245.5:9505/api/products";
+      const API_BASE_URL = 'http://195.26.245.5:9505/api';
       let allProducts = [];
       let currentCategory = "all";
       let currentRating = 0;
+      let selectedProductForRating = null;
+      let currentRatingValue = 0;
+
+      const customClothingProducts = [
+        {
+          id: 'cloth_001',
+          brand: 'Zara',
+          model: 'Classic Denim Jacket',
+          category: 'clothing',
+          price: 89.99,
+          imageUrl: 'https://images.unsplash.com/photo-1551028719-00167b16eac5?w=400',
+          description: 'Stylish blue denim jacket',
+          averageRating: 0,
+          ratingCount: 0,
+          isCustom: true
+        },
+        {
+          id: 'cloth_002',
+          brand: 'H&M',
+          model: 'Cotton T-Shirt',
+          category: 'clothing',
+          price: 24.99,
+          imageUrl: 'https://images.unsplash.com/photo-1521572163474-6864f9cf17ab?w=400',
+          description: 'Comfortable cotton t-shirt',
+          averageRating: 0,
+          ratingCount: 0,
+          isCustom: true
+        },
+        {
+          id: 'cloth_003',
+          brand: 'Nike',
+          model: 'Sports Hoodie',
+          category: 'clothing',
+          price: 65.00,
+          imageUrl: 'https://images.unsplash.com/photo-1556821840-3a63f95609a7?w=400',
+          description: 'Athletic performance hoodie',
+          averageRating: 0,
+          ratingCount: 0,
+          isCustom: true
+        },
+        {
+          id: 'cloth_004',
+          brand: 'Levi\'s',
+          model: 'Slim Fit Jeans',
+          category: 'clothing',
+          price: 79.99,
+          imageUrl: 'https://images.unsplash.com/photo-1542272604-787c3835535d?w=400',
+          description: 'Classic slim fit denim jeans',
+          averageRating: 0,
+          ratingCount: 0,
+          isCustom: true
+        },
+        {
+          id: 'cloth_005',
+          brand: 'Adidas',
+          model: 'Track Pants',
+          category: 'clothing',
+          price: 55.00,
+          imageUrl: 'https://images.unsplash.com/photo-1506629082955-511b1aa562c8?w=400',
+          description: 'Comfortable athletic pants',
+          averageRating: 0,
+          ratingCount: 0,
+          isCustom: true
+        }
+      ];
+
+      function openRatingModal(product) {
+        if (!checkLogin()) return;
+        
+        selectedProductForRating = product;
+        currentRatingValue = 0;
+        
+        document.getElementById('ratingProductName').textContent = `${product.brand} ${product.model}`;
+        document.getElementById('ratingModal').style.display = 'block';
+        
+        document.querySelectorAll('#modalStars span').forEach(star => {
+          star.classList.remove('active');
+        });
+      }
+
+      function closeRatingModal() {
+        document.getElementById('ratingModal').style.display = 'none';
+        selectedProductForRating = null;
+        currentRatingValue = 0;
+      }
+
+      function submitRating() {
+        if (currentRatingValue === 0) {
+          alert('Please select a rating!');
+          return;
+        }
+
+        if (!selectedProductForRating) return;
+
+        const ratings = JSON.parse(localStorage.getItem('productRatings')) || {};
+        const productKey = selectedProductForRating.isCustom 
+          ? selectedProductForRating.id 
+          : `api_${selectedProductForRating.id}`;
+
+        if (!ratings[productKey]) {
+          ratings[productKey] = {
+            ratings: [],
+            averageRating: 0
+          };
+        }
+
+        ratings[productKey].ratings.push(currentRatingValue);
+        
+        const sum = ratings[productKey].ratings.reduce((a, b) => a + b, 0);
+        ratings[productKey].averageRating = sum / ratings[productKey].ratings.length;
+
+        localStorage.setItem('productRatings', JSON.stringify(ratings));
+
+        const productIndex = allProducts.findIndex(p => {
+          if (p.isCustom && selectedProductForRating.isCustom) {
+            return p.id === selectedProductForRating.id;
+          }
+          return p.id === selectedProductForRating.id;
+        });
+
+        if (productIndex !== -1) {
+          allProducts[productIndex].averageRating = ratings[productKey].averageRating;
+          allProducts[productIndex].ratingCount = ratings[productKey].ratings.length;
+        }
+
+        alert(`You rated this product ${currentRatingValue} stars!`);
+        closeRatingModal();
+        displayProducts(allProducts);
+      }
+
+      document.getElementById('modalStars').addEventListener('click', function(e) {
+        if (e.target.tagName === 'SPAN') {
+          currentRatingValue = parseInt(e.target.dataset.rating);
+          document.querySelectorAll('#modalStars span').forEach((star, index) => {
+            if (index < currentRatingValue) {
+              star.classList.add('active');
+            } else {
+              star.classList.remove('active');
+            }
+          });
+        }
+      });
 
       const categoryMap = {
         1: "electronics",
@@ -594,23 +825,61 @@
 
       async function fetchProducts() {
         try {
-          const response = await fetch(apiUrl);
+          const response = await fetch(`${API_BASE_URL}/products`);
           if (!response.ok) throw new Error("Network response was not ok");
 
           const apiProducts = await response.json();
 
-          const localProducts =
-            JSON.parse(localStorage.getItem("products")) || [];
+          const localProducts = JSON.parse(localStorage.getItem("products")) || [];
+          
+          const ratings = JSON.parse(localStorage.getItem('productRatings')) || {};
 
-          allProducts = [...apiProducts, ...localProducts];
+          const productsWithRatings = apiProducts.map(product => {
+            const productKey = `api_${product.id}`;
+            if (ratings[productKey]) {
+              return {
+                ...product,
+                averageRating: ratings[productKey].averageRating,
+                ratingCount: ratings[productKey].ratings.length
+              };
+            }
+            return product;
+          });
+
+          const clothingWithRatings = customClothingProducts.map(product => {
+            const productKey = product.id;
+            if (ratings[productKey]) {
+              return {
+                ...product,
+                averageRating: ratings[productKey].averageRating,
+                ratingCount: ratings[productKey].ratings.length
+              };
+            }
+            return product;
+          });
+
+          allProducts = [...productsWithRatings, ...localProducts, ...clothingWithRatings];
 
           displayProducts(allProducts);
         } catch (error) {
           console.error("Products could not be loaded:", error);
 
-          const localProducts =
-            JSON.parse(localStorage.getItem("products")) || [];
-          allProducts = localProducts;
+          const localProducts = JSON.parse(localStorage.getItem("products")) || [];
+          const ratings = JSON.parse(localStorage.getItem('productRatings')) || {};
+
+          const clothingWithRatings = customClothingProducts.map(product => {
+            const productKey = product.id;
+            if (ratings[productKey]) {
+              return {
+                ...product,
+                averageRating: ratings[productKey].averageRating,
+                ratingCount: ratings[productKey].ratings.length
+              };
+            }
+            return product;
+          });
+
+          allProducts = [...localProducts, ...clothingWithRatings];
           displayProducts(allProducts);
         }
       }
@@ -620,8 +889,7 @@
         grid.innerHTML = "";
 
         if (products.length === 0) {
-          grid.innerHTML =
-            '<p style="grid-column: 1/-1; text-align: center; padding: 40px;">No products found.</p>';
+          grid.innerHTML = '<p style="grid-column: 1/-1; text-align: center; padding: 40px;">No products found.</p>';
           return;
         }
 
@@ -637,8 +905,7 @@
             if (categoryMap[product.categoryId]) {
               categoryName = categoryMap[product.categoryId];
             } else {
-              const productFullName =
-                `${product.brand} ${product.model}`.toLowerCase();
+              const productFullName = `${product.brand} ${product.model}`.toLowerCase();
 
               if (
                 productFullName.includes("phone") ||
@@ -650,21 +917,14 @@
               ) {
                 categoryName = "mobile";
               } else if (
-                productFullName.includes("shirt") ||
-                productFullName.includes("jacket") ||
-                productFullName.includes("dress") ||
-                productFullName.includes("coat") ||
-                productFullName.includes("sweater") ||
-                productFullName.includes("hoodie")
+                productFullName.includes("laptop") ||
+                productFullName.includes("computer") ||
+                productFullName.includes("monitor") ||
+                productFullName.includes("keyboard") ||
+                productFullName.includes("mouse") ||
+                productFullName.includes("tablet")
               ) {
-                categoryName = "clothing";
-              } else if (
-                productFullName.includes("shoe") ||
-                productFullName.includes("boot") ||
-                productFullName.includes("sneaker") ||
-                productFullName.includes("sandal")
-              ) {
-                categoryName = "footwear";
+                categoryName = "electronics";
               } else if (
                 productFullName.includes("watch") ||
                 productFullName.includes("bag") ||
@@ -674,59 +934,46 @@
                 productFullName.includes("hat")
               ) {
                 categoryName = "accessories";
-              } else if (
-                productFullName.includes("laptop") ||
-                productFullName.includes("computer") ||
-                productFullName.includes("monitor") ||
-                productFullName.includes("keyboard") ||
-                productFullName.includes("mouse") ||
-                productFullName.includes("tablet")
-              ) {
-                categoryName = "electronics";
               }
             }
           }
 
-          const rating = product.averageRating || product.rating || 0;
+          const rating = product.averageRating || 0;
           const roundedRating = Math.round(rating);
+          const ratingCount = product.ratingCount || 0;
 
           card.dataset.category = categoryName;
           card.dataset.rating = roundedRating;
           card.dataset.price = product.price || 0;
           card.dataset.id = product.id || Date.now();
 
-          const stars =
-            "★".repeat(roundedRating) + "☆".repeat(5 - roundedRating);
+          const stars = "★".repeat(roundedRating) + "☆".repeat(5 - roundedRating);
 
           card.innerHTML = `
-                    <img src="${
-                      product.imageUrl ||
-                      product.imageURL ||
-                      "https://via.placeholder.com/250"
-                    }" 
-                         alt="${product.brand} ${product.model}"
-                         onerror="this.src='https://via.placeholder.com/250/f5f5f5/666?text=No+Image'">
-                    <div class="product-name">${product.brand} ${
-            product.model
-          }</div>
-                    <div class="product-price">${parseFloat(
-                      product.price
-                    ).toFixed(2)}</div>
-                    <div class="product-rating">
-                        <span class="rating-stars">${stars}</span>
-                        <span class="rating-count">(${roundedRating})</span>
-                    </div>
-                    <button class="add-to-cart-btn">Add to cart</button>
-                `;
+            <img src="${product.imageUrl || product.imageURL || "https://via.placeholder.com/250"}" 
+                 alt="${product.brand} ${product.model}"
+                 onerror="this.src='https://via.placeholder.com/250/f5f5f5/666?text=No+Image'">
+            <div class="product-name">${product.brand} ${product.model}</div>
+            <div class="product-price">${parseFloat(product.price).toFixed(2)}</div>
+            <div class="product-rating">
+              <span class="rating-stars" onclick="event.stopPropagation(); openRatingModal(${JSON.stringify(product).replace(/"/g, '&quot;')})">${stars}</span>
+              <span class="rating-count">(${ratingCount})</span>
+            </div>
+            <button class="add-to-cart-btn">Add to cart</button>
+          `;
 
           const cartBtn = card.querySelector(".add-to-cart-btn");
           cartBtn.addEventListener("click", (e) => {
             e.stopPropagation();
-            alert(`${product.brand} ${product.model} added to cart!`);
+            addToCartUI(
+              product.id,
+              `${product.brand} ${product.model}`,
+              product.price,
+              product.imageUrl || product.imageURL
+            );
           });
 
           card.addEventListener("click", () => {
-            sessionStorage.setItem("selectedProduct", JSON.stringify(product));
             window.location.href = `ProductPage.html?id=${card.dataset.id}`;
           });
 
@@ -757,16 +1004,13 @@
       }
 
       function applyFilters() {
-        const searchTerm =
-          document.getElementById("productSearch")?.value.toLowerCase() || "";
+        const searchTerm = document.getElementById("productSearch")?.value.toLowerCase() || "";
         const cards = document.querySelectorAll(".product-card");
 
         cards.forEach((card) => {
           const cardCategory = card.dataset.category;
           const cardRating = parseInt(card.dataset.rating);
-          const productName = card
-            .querySelector(".product-name")
-            .textContent.toLowerCase();
+          const productName = card.querySelector(".product-name").textContent.toLowerCase();
 
           let showCard = true;
 
@@ -774,7 +1018,7 @@
             showCard = false;
           }
 
-          if (currentRating > 0 && cardRating !== currentRating) {
+          if (currentRating > 0 && cardRating < currentRating) {
             showCard = false;
           }
 
@@ -815,22 +1059,23 @@
         const sortValue = document.getElementById("sortDropdown").value;
 
         if (sortValue === "price-low") {
-          cards.sort(
-            (a, b) => parseFloat(a.dataset.price) - parseFloat(b.dataset.price)
-          );
+          cards.sort((a, b) => parseFloat(a.dataset.price) - parseFloat(b.dataset.price));
         } else if (sortValue === "price-high") {
-          cards.sort(
-            (a, b) => parseFloat(b.dataset.price) - parseFloat(a.dataset.price)
-          );
+          cards.sort((a, b) => parseFloat(b.dataset.price) - parseFloat(a.dataset.price));
         } else if (sortValue === "rating-high") {
-          cards.sort(
-            (a, b) => parseInt(b.dataset.rating) - parseInt(a.dataset.rating)
-          );
+          cards.sort((a, b) => parseInt(b.dataset.rating) - parseInt(a.dataset.rating));
         } else if (sortValue === "newest") {
           cards.sort((a, b) => parseInt(b.dataset.id) - parseInt(a.dataset.id));
         }
 
         cards.forEach((card) => grid.appendChild(card));
+      }
+
+      window.onclick = function(event) {
+        const modal = document.getElementById('ratingModal');
+        if (event.target === modal) {
+          closeRatingModal();
+        }
       }
 
       document.addEventListener("DOMContentLoaded", function () {

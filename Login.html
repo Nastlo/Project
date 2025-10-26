@@ -156,6 +156,18 @@
         background: #c0392b;
       }
 
+      .create-btn:disabled {
+        background: #ccc;
+        cursor: not-allowed;
+      }
+
+      .loading {
+        display: none;
+        text-align: center;
+        margin-top: 10px;
+        color: #666;
+      }
+
       footer {
         background: #e74c3c;
         color: white;
@@ -369,7 +381,8 @@
           required
         />
         <input type="password" id="password" placeholder="Password" required />
-        <button type="submit" class="create-btn">Log in</button>
+        <button type="submit" class="create-btn" id="submitBtn">Log in</button>
+        <div class="loading" id="loading">Logging in...</div>
       </form>
       <p style="text-align: center; margin-top: 20px; font-size: 14px">
         Don't have an account?
@@ -451,30 +464,37 @@
 
     <script src="auth.js"></script>
     <script>
-      document
-        .getElementById("loginForm")
-        .addEventListener("submit", function (e) {
-          e.preventDefault();
+      document.getElementById("loginForm").addEventListener("submit", async function (e) {
+        e.preventDefault();
 
-          const username = document.getElementById("username").value.trim();
-          const password = document.getElementById("password").value.trim();
+        const username = document.getElementById("username").value.trim();
+        const password = document.getElementById("password").value.trim();
 
-          if (!username || !password) {
-            alert("Please fill all fields!");
-            return;
-          }
+        if (!username || !password) {
+          alert("Please fill all fields!");
+          return;
+        }
 
-          const result = loginUser(username, password);
+        const submitBtn = document.getElementById("submitBtn");
+        const loading = document.getElementById("loading");
+        
+        submitBtn.disabled = true;
+        loading.style.display = "block";
 
-          if (result.success) {
-            alert(result.message);
-            window.location.href = "index.html";
-          } else {
-            alert(result.message);
-            document.getElementById("password").value = "";
-            document.getElementById("username").focus();
-          }
-        });
+        const result = await loginUser(username, password);
+
+        submitBtn.disabled = false;
+        loading.style.display = "none";
+
+        if (result.success) {
+          alert(result.message);
+          window.location.href = "index.html";
+        } else {
+          alert(result.message);
+          document.getElementById("password").value = "";
+          document.getElementById("username").focus();
+        }
+      });
     </script>
   </body>
 </html>

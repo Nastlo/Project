@@ -1,6 +1,20 @@
+const API_BASE_URL = 'http://195.26.245.5:9505/api';
+
 function initializeAuth() {
   updateUserUI();
   loadCartCount();
+}
+
+function getAuthToken() {
+  return localStorage.getItem('authToken');
+}
+
+function setAuthToken(token) {
+  localStorage.setItem('authToken', token);
+}
+
+function removeAuthToken() {
+  localStorage.removeItem('authToken');
 }
 
 function updateUserUI() {
@@ -31,6 +45,7 @@ function updateUserUI() {
 
 function logoutUser() {
   if (confirm("Are you sure you want to log out?")) {
+    removeAuthToken();
     localStorage.removeItem("loggedInUser");
     localStorage.removeItem("cart");
     alert("Successfully logged out!");
@@ -105,48 +120,73 @@ function clearCart() {
   loadCartCount();
 }
 
-function registerUser(name, surname, email, username, password) {
-  const users = JSON.parse(localStorage.getItem("users")) || [];
+async function registerUser(name, surname, email, username, password) {
+  try {
+    const response = await fetch(`${API_BASE_URL}/auth/register`, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json'
+      },
+      body: JSON.stringify({
+        name: name,
+        surname: surname,
+        email: email,
+        username: username,
+        password: password
+      })
+    });
 
-  if (users.find((u) => u.email === email)) {
-    return { success: false, message: "This email is already registered!" };
+    const data = await response.json();
+
+    if (!response.ok) {
+      return { success: false, message: data.message || "Registration failed!" };
+    }
+
+    return { success: true, message: "Registration successful!" };
+  } catch (error) {
+    console.error('Register error:', error);
+    return { success: false, message: "Network error. Please try again." };
   }
-
-  if (users.find((u) => u.username === username)) {
-    return { success: false, message: "This username is already taken!" };
-  }
-
-  const newUser = {
-    id: Date.now(),
-    name,
-    surname,
-    email,
-    username,
-    password,
-  };
-  users.push(newUser);
-  localStorage.setItem("users", JSON.stringify(users));
-
-  return { success: true, message: "Registration successful!" };
 }
 
-function loginUser(username, password) {
-  const users = JSON.parse(localStorage.getItem("users")) || [];
+async function loginUser(username, password) {
+  try {
+    const response = await fetch(`${API_BASE_URL}/auth/login`, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json'
+      },
+      body: JSON.stringify({
+        username: username,
+        password: password
+      })
+    });
 
-  const user = users.find(
-    (u) =>
-      (u.username === username || u.email === username) &&
-      u.password === password
-  );
+    const data = await response.json();
 
-  if (user) {
-    const userWithoutPassword = { ...user };
-    delete userWithoutPassword.password;
-    localStorage.setItem("loggedInUser", JSON.stringify(userWithoutPassword));
+    if (!response.ok) {
+      return { success: false, message: data.message || "Login failed!" };
+    }
+
+    if (data.token) {
+      setAuthToken(data.token);
+    }
+
+    const userInfo = {
+      id: data.id,
+      name: data.name,
+      surname: data.surname,
+      email: data.email,
+      username: data.username
+    };
+    
+    localStorage.setItem('loggedInUser', JSON.stringify(userInfo));
+
     return { success: true, message: "Login successful!" };
+  } catch (error) {
+    console.error('Login error:', error);
+    return { success: false, message: "Network error. Please try again." };
   }
-
-  return { success: false, message: "Username or password is incorrect!" };
 }
 
 document.addEventListener("DOMContentLoaded", initializeAuth);

@@ -3,7 +3,7 @@
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>E-commerce - My Products</title>
+    <title>Edit Product</title>
     <link
       rel="stylesheet"
       href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css"
@@ -19,6 +19,7 @@
         font-family: Arial, sans-serif;
         line-height: 1.6;
         background-color: #f5f5f5;
+        color: #333;
       }
 
       .promo-banner {
@@ -60,11 +61,6 @@
         text-decoration: none;
         color: #333;
         font-size: 14px;
-        transition: color 0.3s;
-      }
-
-      nav a:hover {
-        color: #e74c3c;
       }
 
       .shop-btn {
@@ -113,8 +109,6 @@
       .user-icon {
         background: white;
         border: 1px solid #ddd;
-        cursor: pointer;
-        font-size: 18px;
         display: none;
         align-items: center;
         gap: 5px;
@@ -125,100 +119,112 @@
       }
 
       .container {
-        max-width: 1200px;
+        max-width: 800px;
         margin: 60px auto;
         padding: 0 20px;
-        min-height: calc(100vh - 600px);
+        background: white;
+        border-radius: 8px;
+        box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+        padding: 40px;
       }
 
-      .newproduct {
+      h2 {
+        text-align: center;
+        margin-bottom: 30px;
+        font-size: 28px;
+        color: #333;
+      }
+
+      form {
+        display: flex;
+        flex-direction: column;
+        gap: 20px;
+      }
+
+      .form-group {
+        display: flex;
+        flex-direction: column;
+        gap: 8px;
+      }
+
+      label {
+        font-size: 14px;
+        font-weight: 500;
+        color: #555;
+      }
+
+      input,
+      textarea,
+      select {
+        width: 100%;
+        padding: 12px;
+        border: 1px solid #ddd;
+        border-radius: 4px;
+        font-size: 14px;
+        transition: border-color 0.3s;
+      }
+
+      input:focus,
+      textarea:focus,
+      select:focus {
+        outline: none;
+        border-color: #e74c3c;
+      }
+
+      textarea {
+        resize: vertical;
+        min-height: 100px;
+      }
+
+      .preview {
+        margin-top: 10px;
+      }
+
+      .preview img {
+        width: 200px;
+        height: 200px;
+        object-fit: contain;
+        border-radius: 8px;
+        border: 2px solid #ddd;
+        background: #f5f5f5;
+      }
+
+      .buttons {
+        display: flex;
+        gap: 15px;
+        margin-top: 10px;
+      }
+
+      .update-btn {
+        flex: 1;
         background-color: #007bff;
         color: white;
-        padding: 12px 20px;
-        font-size: 16px;
-        font-weight: 600;
-        border-radius: 4px 4px 0 0;
-        display: inline-block;
-        margin-bottom: 0;
-        cursor: pointer;
-        text-decoration: none;
-      }
-
-      .table-container {
-        background-color: white;
-        border-radius: 0 8px 8px 8px;
-        box-shadow: 0 2px 10px rgba(0, 0, 0, 0.08);
-        overflow-x: auto;
-      }
-
-      table {
-        width: 100%;
-        border-collapse: collapse;
-      }
-
-      thead {
-        background-color: #f8f9fa;
-      }
-
-      th {
-        padding: 15px;
-        text-align: left;
-        font-weight: 600;
-        color: #333;
-        font-size: 14px;
-        border-bottom: 2px solid #dee2e6;
-      }
-
-      td {
-        padding: 20px 15px;
-        border-bottom: 1px solid #dee2e6;
-        color: #666;
-        font-size: 14px;
-        vertical-align: middle;
-      }
-
-      tbody tr:hover {
-        background-color: #f8f9fa;
-      }
-
-      .product-image {
-        width: 120px;
-        height: 80px;
-        object-fit: contain;
-        border-radius: 4px;
-      }
-
-      .actions {
-        display: flex;
-        gap: 10px;
-      }
-
-      .btn-edit {
-        background-color: #28a745;
-        color: white;
-        padding: 8px 20px;
+        padding: 12px;
         border: none;
         border-radius: 4px;
         cursor: pointer;
-        font-size: 13px;
+        font-weight: bold;
+        font-size: 15px;
       }
 
-      .btn-edit:hover {
-        background-color: #218838;
+      .update-btn:hover {
+        background-color: #0056b3;
       }
 
-      .btn-delete {
-        background-color: #e74c3c;
+      .cancel-btn {
+        flex: 1;
+        background-color: #6c757d;
         color: white;
-        padding: 8px 20px;
+        padding: 12px;
         border: none;
         border-radius: 4px;
         cursor: pointer;
-        font-size: 13px;
+        font-weight: bold;
+        font-size: 15px;
       }
 
-      .btn-delete:hover {
-        background-color: #c0392b;
+      .cancel-btn:hover {
+        background-color: #5a6268;
       }
 
       footer {
@@ -278,42 +284,6 @@
         font-size: 13px;
         opacity: 0.9;
       }
-
-      .empty-state {
-        text-align: center;
-        padding: 60px 20px;
-        color: #666;
-      }
-
-      .empty-state i {
-        font-size: 64px;
-        color: #ddd;
-        margin-bottom: 20px;
-      }
-
-      @keyframes slideIn {
-        from {
-          transform: translateX(100%);
-          opacity: 0;
-        }
-        to {
-          transform: translateX(0);
-          opacity: 1;
-        }
-      }
-
-      .notification {
-        position: fixed;
-        top: 20px;
-        right: 20px;
-        padding: 15px 25px;
-        background-color: #28a745;
-        color: white;
-        border-radius: 4px;
-        box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
-        z-index: 1000;
-        animation: slideIn 0.3s ease;
-      }
     </style>
   </head>
   <body>
@@ -349,25 +319,92 @@
     </header>
 
     <div class="container">
-      <a href="Createproduct.html" class="newproduct">+ New Product</a>
-      <div class="table-container">
-        <table>
-          <thead>
-            <tr>
-              <th>ID</th>
-              <th>Brand</th>
-              <th>Model</th>
-              <th>Category</th>
-              <th>Image</th>
-              <th>Price</th>
-              <th>Rating</th>
-              <th>Actions</th>
-            </tr>
-          </thead>
-          <tbody id="productTableBody">
-          </tbody>
-        </table>
-      </div>
+      <h2>Edit Product</h2>
+      <form id="productForm">
+        <div class="form-group">
+          <label>Brand *</label>
+          <input
+            type="text"
+            id="brand"
+            required
+            placeholder="Enter product brand"
+          />
+        </div>
+
+        <div class="form-group">
+          <label>Model *</label>
+          <input
+            type="text"
+            id="model"
+            required
+            placeholder="Enter product model"
+          />
+        </div>
+
+        <div class="form-group">
+          <label>Category *</label>
+          <select id="category" required>
+            <option value="">Select category</option>
+            <option value="clothing">Clothing</option>
+            <option value="footwear">Footwear</option>
+            <option value="accessories">Accessories</option>
+            <option value="mobile">Mobile</option>
+            <option value="electronics">Electronics</option>
+          </select>
+        </div>
+
+        <div class="form-group">
+          <label>Description</label>
+          <textarea
+            id="description"
+            placeholder="Enter product description (optional)"
+          ></textarea>
+        </div>
+
+        <div class="form-group">
+          <label>Price *</label>
+          <input
+            type="number"
+            id="price"
+            step="0.01"
+            required
+            placeholder="0.00"
+          />
+        </div>
+
+        <div class="form-group">
+          <label>Rating *</label>
+          <select id="rating" required>
+            <option value="">Select rating</option>
+            <option value="1">⭐ 1 Star</option>
+            <option value="2">⭐⭐ 2 Stars</option>
+            <option value="3">⭐⭐⭐ 3 Stars</option>
+            <option value="4">⭐⭐⭐⭐ 4 Stars</option>
+            <option value="5">⭐⭐⭐⭐⭐ 5 Stars</option>
+          </select>
+        </div>
+
+        <div class="form-group">
+          <label>Image URL *</label>
+          <input
+            type="url"
+            id="imageURL"
+            oninput="previewImage()"
+            required
+            placeholder="https://example.com/image.jpg"
+          />
+          <div class="preview">
+            <img id="imagePreview" src="" alt="" style="display: none" />
+          </div>
+        </div>
+
+        <div class="buttons">
+          <button type="submit" class="update-btn">💾 Update Product</button>
+          <button type="button" class="cancel-btn" onclick="window.location.href='userproducts.html'">
+            🔙 Cancel
+          </button>
+        </div>
+      </form>
     </div>
 
     <footer>
@@ -427,87 +464,83 @@
 
     <script src="auth.js"></script>
     <script>
-      function loadProducts() {
-        const tbody = document.getElementById("productTableBody");
-        const products = JSON.parse(localStorage.getItem("products")) || [];
+      let productIndex = null;
 
-        tbody.innerHTML = "";
+      function previewImage() {
+        const url = document.getElementById("imageURL").value;
+        const img = document.getElementById("imagePreview");
 
-        if (products.length === 0) {
-          tbody.innerHTML = `
-            <tr>
-              <td colspan="8" class="empty-state">
-                <i class="fas fa-box-open"></i>
-                <h3>No products yet</h3>
-                <p>Create your first product to get started!</p>
-              </td>
-            </tr>
-          `;
+        if (url) {
+          img.src = url;
+          img.style.display = "block";
+          img.onerror = function () {
+            this.src = "https://via.placeholder.com/200x200/e8f4f8/333333?text=Invalid+URL";
+          };
+        } else {
+          img.style.display = "none";
+        }
+      }
+
+      function loadProduct() {
+        const urlParams = new URLSearchParams(window.location.search);
+        productIndex = urlParams.get('index');
+
+        if (productIndex === null) {
+          alert('Product not found!');
+          window.location.href = 'userproducts.html';
           return;
         }
 
-        products.forEach((product, index) => {
-          const row = document.createElement("tr");
-          row.innerHTML = `
-            <td>${index + 1}</td>
-            <td>${product.brand}</td>
-            <td>${product.model}</td>
-            <td>${product.category}</td>
-            <td>
-              <img src="${product.imageURL}" alt="${product.brand}" class="product-image" onerror="this.src='https://via.placeholder.com/120x80/e8f4f8/333333?text=No+Image'">
-            </td>
-            <td>${product.price}</td>
-            <td>${product.rating}/5</td>
-            <td>
-              <div class="actions">
-                <button class="btn-edit" onclick="editProduct(${index})">Edit</button>
-                <button class="btn-delete" onclick="deleteProduct(${index})">Delete</button>
-              </div>
-            </td>
-          `;
-          tbody.appendChild(row);
-        });
-      }
-
-      function editProduct(index) {
-        window.location.href = `editproduct.html?index=${index}`;
-      }
-
-      function deleteProduct(index) {
         const products = JSON.parse(localStorage.getItem("products")) || [];
-        const product = products[index];
+        const product = products[productIndex];
 
-        if (confirm(`Are you sure you want to delete ${product.brand} ${product.model}?`)) {
-          products.splice(index, 1);
-          localStorage.setItem("products", JSON.stringify(products));
-          showNotification("Product deleted successfully!");
-          loadProducts();
+        if (!product) {
+          alert('Product not found!');
+          window.location.href = 'userproducts.html';
+          return;
         }
+
+        document.getElementById("brand").value = product.brand;
+        document.getElementById("model").value = product.model;
+        document.getElementById("category").value = product.category;
+        document.getElementById("description").value = product.description || '';
+        document.getElementById("price").value = product.price;
+        document.getElementById("rating").value = product.rating;
+        document.getElementById("imageURL").value = product.imageURL;
+
+        previewImage();
       }
 
-      function showNotification(message) {
-        const notification = document.createElement("div");
-        notification.className = "notification";
-        notification.textContent = message;
-        document.body.appendChild(notification);
+      document.getElementById("productForm").addEventListener("submit", function (e) {
+        e.preventDefault();
 
-        setTimeout(() => {
-          notification.style.animation = "slideIn 0.3s ease reverse";
-          setTimeout(() => notification.remove(), 300);
-        }, 3000);
-      }
+        if (productIndex === null) {
+          alert('Error: Product index not found!');
+          return;
+        }
 
-      document.querySelector(".search-bar").addEventListener("input", function (e) {
-        const searchTerm = e.target.value.toLowerCase();
-        const rows = document.querySelectorAll("#productTableBody tr");
+        const products = JSON.parse(localStorage.getItem("products")) || [];
 
-        rows.forEach((row) => {
-          const text = row.textContent.toLowerCase();
-          row.style.display = text.includes(searchTerm) ? "" : "none";
-        });
+        const updatedProduct = {
+          brand: document.getElementById("brand").value,
+          model: document.getElementById("model").value,
+          category: document.getElementById("category").value,
+          description: document.getElementById("description").value,
+          price: parseFloat(document.getElementById("price").value),
+          rating: parseInt(document.getElementById("rating").value),
+          imageURL: document.getElementById("imageURL").value,
+          averageRating: parseInt(document.getElementById("rating").value),
+          id: products[productIndex].id 
+        };
+
+        products[productIndex] = updatedProduct;
+        localStorage.setItem("products", JSON.stringify(products));
+
+        alert("Product updated successfully!");
+        window.location.href = "userproducts.html";
       });
 
-      window.addEventListener("DOMContentLoaded", loadProducts);
+      window.addEventListener('DOMContentLoaded', loadProduct);
     </script>
   </body>
 </html>
