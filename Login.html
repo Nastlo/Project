@@ -1,0 +1,480 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Log in</title>
+    <link
+      rel="stylesheet"
+      href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css"
+    />
+    <style>
+      * {
+        margin: 0;
+        padding: 0;
+        box-sizing: border-box;
+      }
+
+      body {
+        font-family: "Segoe UI", Tahoma, Geneva, Verdana, sans-serif;
+        overflow-x: hidden;
+        min-height: 100vh;
+        display: flex;
+        flex-direction: column;
+      }
+
+      .top-banner {
+        background: linear-gradient(to right, #e74c3c, #c0392b);
+        color: white;
+        text-align: center;
+        padding: 8px 0;
+        font-size: 13px;
+      }
+
+      .top-banner a {
+        color: white;
+        text-decoration: underline;
+        margin-left: 5px;
+      }
+
+      header {
+        background: white;
+        padding: 15px 50px;
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+      }
+
+      .logo {
+        font-size: 24px;
+        font-weight: bold;
+        color: #000;
+      }
+
+      nav {
+        display: flex;
+        gap: 30px;
+        align-items: center;
+      }
+
+      nav a {
+        text-decoration: none;
+        color: #333;
+        font-size: 14px;
+      }
+
+      .shop-btn {
+        background: #e74c3c;
+        color: white;
+        padding: 8px 20px;
+        border: none;
+        cursor: pointer;
+        font-size: 14px;
+        border-radius: 4px;
+        text-decoration: none;
+      }
+
+      .header-right {
+        display: flex;
+        align-items: center;
+        gap: 20px;
+      }
+
+      .search-bar {
+        padding: 8px 15px;
+        border: 1px solid #ddd;
+        width: 200px;
+        font-size: 13px;
+        border-radius: 4px;
+      }
+
+      .signup-btn {
+        background: #e74c3c;
+        color: white;
+        padding: 8px 20px;
+        border: none;
+        cursor: pointer;
+        font-size: 14px;
+        border-radius: 4px;
+        transition: background 0.3s ease;
+        font-weight: 500;
+      }
+
+      .signup-btn:hover {
+        background: #c0392b;
+      }
+
+      .account-section {
+        max-width: 500px;
+        margin: 100px auto;
+        background: white;
+        padding: 60px 40px;
+        border-radius: 12px;
+        min-height: 600px;
+      }
+
+      .account-section h2 {
+        text-align: center;
+        font-size: 28px;
+        color: #2c3e50;
+        margin-bottom: 20px;
+        font-weight: 600;
+      }
+
+      .account-section form input {
+        width: 100%;
+        padding: 15px;
+        margin: 15px 0;
+        font-size: 15px;
+        border: 1px solid #ddd;
+        border-radius: 6px;
+        box-sizing: border-box;
+        transition: border-color 0.3s ease;
+      }
+
+      .account-section form input:focus {
+        outline: none;
+        border-color: #e74c3c;
+      }
+
+      .create-btn {
+        width: 100%;
+        background: #e74c3c;
+        color: white;
+        border: none;
+        padding: 15px;
+        font-size: 16px;
+        font-weight: 600;
+        border-radius: 10px;
+        cursor: pointer;
+        margin-top: 15px;
+        transition: background 0.3s ease;
+      }
+
+      .create-btn:hover {
+        background: #c0392b;
+      }
+
+      footer {
+        background: #e74c3c;
+        color: white;
+        padding: 60px 80px 30px 80px;
+        font-family: "Poppins", sans-serif;
+        margin-top: auto;
+      }
+
+      .footer-content {
+        display: grid;
+        grid-template-columns: repeat(5, 1fr);
+        gap: 40px;
+        margin-bottom: 40px;
+      }
+
+      .footer-column h3 {
+        font-size: 18px;
+        margin-bottom: 20px;
+        font-weight: 600;
+      }
+
+      .footer-column p,
+      .footer-column a {
+        color: #fff;
+        text-decoration: none;
+        display: block;
+        margin-bottom: 10px;
+        font-size: 13px;
+        line-height: 1.7;
+      }
+
+      .footer-subscribe input {
+        width: 80%;
+        padding: 10px;
+        border: 1px solid white;
+        background: transparent;
+        color: white;
+        font-size: 13px;
+        outline: none;
+      }
+
+      .footer-subscribe input::placeholder {
+        color: #fff;
+      }
+
+      .subscribe-btn {
+        color: #ffffff;
+        border: none;
+        padding: 10px;
+        margin-left: -40px;
+        cursor: pointer;
+        font-size: 12px;
+        font-weight: bold;
+        background: #e74c3c;
+      }
+
+      .qr-code {
+        width: 80px;
+        height: 80px;
+        background: white;
+        margin-bottom: 10px;
+        border-radius: 5px;
+      }
+
+      .app-buttons img {
+        width: 120px;
+        display: block;
+        margin-bottom: 8px;
+      }
+
+      .social-icons {
+        display: flex;
+        gap: 15px;
+        margin-top: 15px;
+      }
+
+      .social-icons i {
+        font-size: 16px;
+        cursor: pointer;
+        transition: 0.3s;
+      }
+
+      .social-icons i:hover {
+        opacity: 0.7;
+      }
+
+      .footer-bottom {
+        text-align: center;
+        padding-top: 25px;
+        border-top: 1px solid rgba(255, 255, 255, 0.3);
+        font-size: 13px;
+        opacity: 0.9;
+      }
+
+      @media (max-width: 900px) {
+        .footer-content {
+          grid-template-columns: repeat(2, 1fr);
+          gap: 30px;
+        }
+      }
+
+      @media (max-width: 600px) {
+        .footer-content {
+          grid-template-columns: 1fr;
+          text-align: center;
+        }
+
+        .footer-subscribe input {
+          width: 100%;
+          margin-bottom: 10px;
+        }
+
+        .subscribe-btn {
+          width: 100%;
+          margin-left: 0;
+        }
+      }
+      .signup-btn {
+        background: #e74c3c;
+        color: white;
+        padding: 8px 20px;
+        border: none;
+        cursor: pointer;
+        font-size: 14px;
+        border-radius: 4px;
+        transition: background 0.3s ease;
+        font-weight: 500;
+      }
+
+      .signup-btn:hover {
+        background: #c0392b;
+      }
+
+      .cart-btn {
+        background-color: white;
+        border: 1px solid #ddd;
+        padding: 8px 15px;
+        border-radius: 4px;
+        cursor: pointer;
+        font-size: 14px;
+        font-weight: 500;
+      }
+
+      .cart-btn:hover {
+        background-color: #f5f5f5;
+      }
+
+      .user-icon {
+        background: white;
+        border: 1px solid #ddd;
+        cursor: pointer;
+        font-size: 18px;
+        display: none;
+        align-items: center;
+        gap: 5px;
+        padding: 8px 15px;
+        color: black;
+        text-decoration: none;
+        border-radius: 4px;
+      }
+
+      .user-icon:hover {
+        background-color: #f0f0f0;
+      }
+
+      .username-text {
+        font-size: 13px;
+      }
+    </style>
+  </head>
+
+  <body>
+    <div class="top-banner">
+      Summer Sale For All Swim Suits And Free Express Delivery - OFF 50%!
+      <a href="#">ShopNow</a>
+    </div>
+
+    <header>
+      <div class="logo">E-commerce</div>
+      <nav>
+        <a href="index.html">Home</a>
+        <a href="Contact.html">Contact</a>
+        <a href="about.html">About</a>
+        <a href="signup.html">Sign Up</a>
+        <button class="shop-btn" onclick="window.location.href='shop.html'">
+          Shop
+        </button>
+      </nav>
+      <div class="header-right">
+        <input
+          type="text"
+          class="search-bar"
+          placeholder="What are you looking for?"
+        />
+        <i class="fas fa-search"></i>
+        <button class="cart-btn">🛒</button>
+        <a href="account.html" class="user-icon">
+          👤 <span class="username-text">username</span>
+        </a>
+        <button class="signup-btn">Log In</button>
+      </div>
+    </header>
+
+    <section class="account-section">
+      <h2>Log in</h2>
+      <form id="loginForm">
+        <input
+          type="text"
+          id="username"
+          placeholder="Username or Email"
+          required
+        />
+        <input type="password" id="password" placeholder="Password" required />
+        <button type="submit" class="create-btn">Log in</button>
+      </form>
+      <p style="text-align: center; margin-top: 20px; font-size: 14px">
+        Don't have an account?
+        <a
+          href="signup.html"
+          style="color: #e74c3c; text-decoration: none; font-weight: 600"
+          >Sign up</a
+        >
+      </p>
+    </section>
+
+    <footer>
+      <div class="footer-content">
+        <div class="footer-column footer-subscribe">
+          <h3>Exclusive</h3>
+          <p>Subscribe</p>
+          <p>Get 10% off your first order</p>
+          <div class="email-input-wrapper">
+            <input type="email" placeholder="Enter your email" />
+            <button class="subscribe-btn">→</button>
+          </div>
+        </div>
+
+        <div class="footer-column">
+          <h3>Support</h3>
+          <p>111 Bijoy sarani, Dhaka,<br />DH 1515, Bangladesh.</p>
+          <p>exclusive@gmail.com</p>
+          <p>+88015-88888-9999</p>
+        </div>
+
+        <div class="footer-column">
+          <h3>Account</h3>
+          <a href="#">My Account</a>
+          <a href="#">Login / Register</a>
+          <a href="#">Cart</a>
+          <a href="#">Wishlist</a>
+          <a href="#">Shop</a>
+        </div>
+
+        <div class="footer-column">
+          <h3>Quick Link</h3>
+          <a href="#">Privacy Policy</a>
+          <a href="#">Terms Of Use</a>
+          <a href="#">FAQ</a>
+          <a href="#">Contact</a>
+        </div>
+
+        <div class="footer-column">
+          <h3>Download App</h3>
+          <p style="font-size: 11px; opacity: 0.8">
+            Save $3 with App New User Only
+          </p>
+          <div class="qr-and-apps">
+            <img src="img/qrcode.png" alt="" class="qr-code" />
+            <div class="app-buttons">
+              <img
+                src="https://upload.wikimedia.org/wikipedia/commons/7/78/Google_Play_Store_badge_EN.svg"
+                alt="Google Play"
+              />
+              <img
+                src="https://upload.wikimedia.org/wikipedia/commons/3/3c/Download_on_the_App_Store_Badge.svg"
+                alt="App Store"
+              />
+            </div>
+          </div>
+          <div class="social-icons">
+            <i class="fab fa-facebook-f"></i>
+            <i class="fab fa-twitter"></i>
+            <i class="fab fa-instagram"></i>
+            <i class="fab fa-linkedin-in"></i>
+          </div>
+        </div>
+      </div>
+
+      <div class="footer-bottom">
+        © Copyright Rimel 2022. All right reserved
+      </div>
+    </footer>
+
+    <script src="auth.js"></script>
+    <script>
+      document
+        .getElementById("loginForm")
+        .addEventListener("submit", function (e) {
+          e.preventDefault();
+
+          const username = document.getElementById("username").value.trim();
+          const password = document.getElementById("password").value.trim();
+
+          if (!username || !password) {
+            alert("Please fill all fields!");
+            return;
+          }
+
+          const result = loginUser(username, password);
+
+          if (result.success) {
+            alert(result.message);
+            window.location.href = "index.html";
+          } else {
+            alert(result.message);
+            document.getElementById("password").value = "";
+            document.getElementById("username").focus();
+          }
+        });
+    </script>
+  </body>
+</html>

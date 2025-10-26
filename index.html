@@ -1,0 +1,1106 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>E-commerce</title>
+    <link
+      rel="stylesheet"
+      href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css"
+    />
+    <style>
+      * {
+        margin: 0;
+        padding: 0;
+        box-sizing: border-box;
+      }
+
+      body {
+        font-family: "Segoe UI", Tahoma, Geneva, Verdana, sans-serif;
+        overflow-x: hidden;
+      }
+
+      .top-banner {
+        background: linear-gradient(to right, #e74c3c, #c0392b);
+        color: white;
+        text-align: center;
+        padding: 8px 0;
+        font-size: 13px;
+      }
+
+      .top-banner a {
+        color: white;
+        text-decoration: underline;
+        margin-left: 5px;
+      }
+
+      header {
+        background: white;
+        padding: 15px 50px;
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+      }
+
+      .logo {
+        font-size: 24px;
+        font-weight: bold;
+        color: #000;
+      }
+
+      nav {
+        display: flex;
+        gap: 30px;
+        align-items: center;
+      }
+
+      nav a {
+        text-decoration: none;
+        color: #333;
+        font-size: 14px;
+      }
+
+      .shop-btn {
+        background: #e74c3c;
+        color: white;
+        padding: 8px 20px;
+        border: none;
+        cursor: pointer;
+        font-size: 14px;
+        border-radius: 4px;
+        text-decoration: none;
+      }
+
+      .header-right {
+        display: flex;
+        align-items: center;
+        gap: 20px;
+      }
+
+      .search-bar {
+        padding: 8px 15px;
+        border: 1px solid #ddd;
+        width: 200px;
+        font-size: 13px;
+        border-radius: 4px;
+      }
+
+      .icons {
+        display: flex;
+        gap: 15px;
+        align-items: center;
+      }
+
+      .user-icon {
+        background: white;
+        border: 1px solid #ddd;
+        cursor: pointer;
+        font-size: 18px;
+        display: none;
+        align-items: center;
+        gap: 5px;
+        padding: 8px 15px;
+        color: black;
+        text-decoration: none;
+        border-radius: 4px;
+      }
+
+      .user-icon:hover {
+        background-color: #f0f0f0;
+      }
+
+      .username-text {
+        font-size: 13px;
+      }
+
+      .cart-btn {
+        background-color: white;
+        border: 1px solid #ddd;
+        padding: 8px 15px;
+        border-radius: 4px;
+        cursor: pointer;
+        font-size: 14px;
+        font-weight: 500;
+      }
+
+      .signup-btn {
+        background: #e74c3c;
+        color: white;
+        padding: 8px 20px;
+        border: none;
+        cursor: pointer;
+        font-size: 14px;
+        border-radius: 4px;
+        transition: background 0.3s ease;
+        font-weight: 500;
+      }
+
+      .signup-btn:hover {
+        background: #c0392b;
+      }
+
+      .hero {
+        background: #000;
+        height: 550px;
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        position: relative;
+        overflow: hidden;
+      }
+
+      .hero-slider {
+        display: flex;
+        transition: transform 0.5s ease-in-out;
+        width: 100%;
+        height: 100%;
+      }
+
+      .hero-slide {
+        min-width: 100%;
+        display: flex;
+        justify-content: center;
+        align-items: center;
+      }
+
+      .hero-slide img {
+        max-height: 450px;
+        object-fit: contain;
+      }
+
+      .hero-dots {
+        position: absolute;
+        bottom: 20px;
+        display: flex;
+        gap: 10px;
+      }
+
+      .dot {
+        width: 10px;
+        height: 10px;
+        border-radius: 50%;
+        background: #666;
+        cursor: pointer;
+      }
+
+      .dot.active {
+        background: #e74c3c;
+      }
+
+      .section-title {
+        display: flex;
+        align-items: center;
+        gap: 10px;
+        margin: 50px 50px 20px 50px;
+      }
+
+      .red-bar {
+        width: 4px;
+        height: 30px;
+        background: #e74c3c;
+      }
+
+      .section-title h2 {
+        font-size: 28px;
+      }
+
+      .section-title span {
+        color: #e74c3c;
+        font-size: 14px;
+        font-weight: 600;
+      }
+
+      .shop-collection {
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+        grid-template-rows: 1fr 1fr;
+        gap: 30px;
+        padding: 0 50px;
+        margin-bottom: 50px;
+        max-width: 1400px;
+        margin-left: auto;
+        margin-right: auto;
+      }
+
+      .collection-item {
+        background: #f5f5f5;
+        padding: 60px 40px;
+        text-align: left;
+        cursor: pointer;
+        transition: all 0.3s ease;
+        position: relative;
+        border-radius: 8px;
+        min-height: 300px;
+        display: flex;
+        flex-direction: column;
+        justify-content: center;
+        align-items: center;
+      }
+
+      .collection-item:first-child {
+        grid-row: span 2;
+        min-height: 630px;
+      }
+
+      .collection-item:hover {
+        transform: translateY(-8px);
+        box-shadow: 0 10px 30px rgba(0, 0, 0, 0.15);
+      }
+
+      .collection-item img {
+        max-width: 200px;
+        max-height: 200px;
+        margin-bottom: 30px;
+        object-fit: contain;
+      }
+
+      .collection-item h3 {
+        font-size: 24px;
+        margin-bottom: 12px;
+        font-weight: 600;
+      }
+
+      .collection-link {
+        text-decoration: underline;
+        color: #333;
+        font-size: 14px;
+        font-weight: 500;
+        display: inline-flex;
+        align-items: center;
+        gap: 5px;
+      }
+
+      .collection-link:hover {
+        color: #e74c3c;
+      }
+
+      .promotion-section {
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+        margin: 50px 0;
+      }
+
+      .promo-left {
+        background: linear-gradient(to bottom, #2c1810, #1a0a05);
+        padding: 60px;
+        display: flex;
+        justify-content: center;
+        align-items: center;
+      }
+
+      .promo-left img {
+        max-width: 100%;
+      }
+
+      .promo-right {
+        background: linear-gradient(to bottom, #f4d9a8, #e8c896);
+        padding: 60px;
+        display: flex;
+        flex-direction: column;
+        justify-content: center;
+      }
+
+      .promo-tag {
+        color: #4a90e2;
+        font-size: 14px;
+        font-weight: 600;
+        margin-bottom: 10px;
+      }
+
+      .promo-right h2 {
+        font-size: 36px;
+        margin-bottom: 15px;
+      }
+
+      .promo-right p {
+        color: #555;
+        margin-bottom: 20px;
+      }
+
+      .promo-expires {
+        font-size: 13px;
+        margin-bottom: 15px;
+      }
+
+      .countdown {
+        display: flex;
+        gap: 20px;
+        margin-bottom: 30px;
+      }
+
+      .countdown-item {
+        text-align: center;
+      }
+
+      .countdown-number {
+        background: white;
+        padding: 15px 20px;
+        border-radius: 50%;
+        font-size: 20px;
+        font-weight: bold;
+        display: inline-block;
+        width: 60px;
+        height: 60px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+      }
+
+      .countdown-label {
+        font-size: 12px;
+        margin-top: 5px;
+      }
+
+      .shop-now-btn {
+        background: #1a1a1a;
+        color: white;
+        padding: 12px 30px;
+        border: none;
+        cursor: pointer;
+        font-size: 14px;
+        align-self: flex-start;
+        border-radius: 4px;
+      }
+
+      .iphone-section {
+        background: linear-gradient(to right, #2a2a2a, #1a1a1a);
+        color: white;
+        padding: 80px 50px;
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+      }
+
+      .iphone-content {
+        max-width: 500px;
+      }
+
+      .iphone-tag {
+        font-size: 14px;
+        color: #999;
+        margin-bottom: 10px;
+      }
+
+      .iphone-content h2 {
+        font-size: 48px;
+        margin-bottom: 15px;
+      }
+
+      .iphone-content h2 span {
+        font-weight: 300;
+      }
+
+      .iphone-content p {
+        color: #999;
+        margin-bottom: 30px;
+        line-height: 1.6;
+      }
+
+      .shop-now-outline {
+        background: transparent;
+        color: white;
+        border: 2px solid white;
+        padding: 12px 30px;
+        cursor: pointer;
+        font-size: 14px;
+        border-radius: 4px;
+      }
+
+      .iphone-image img {
+        max-height: 400px;
+        margin-left: 50px;
+      }
+
+      .feedback-section {
+        text-align: center;
+        padding: 60px 50px;
+      }
+
+      .feedback-section h2 {
+        font-size: 32px;
+        color: #e74c3c;
+        margin-bottom: 40px;
+      }
+
+      .feedback-cards {
+        display: grid;
+        grid-template-columns: repeat(3, 1fr);
+        gap: 30px;
+        margin-bottom: 60px;
+      }
+
+      .feedback-card {
+        background: #fff;
+        padding: 30px;
+        text-align: left;
+        box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+        border-radius: 8px;
+      }
+
+      .feedback-card.pink {
+        background: #f8d7da;
+      }
+
+      .quote {
+        color: #e74c3c;
+        font-size: 36px;
+        margin-bottom: 10px;
+      }
+
+      .feedback-name {
+        font-weight: bold;
+        color: #e74c3c;
+        margin-bottom: 15px;
+      }
+
+      .feedback-text {
+        color: #333;
+        line-height: 1.6;
+        font-size: 14px;
+      }
+
+      .products-section {
+        padding: 0 50px 60px 50px;
+      }
+
+      .products-grid {
+        display: grid;
+        grid-template-columns: repeat(4, 1fr);
+        gap: 0;
+      }
+
+      .product-card {
+        padding: 40px;
+        text-align: center;
+        transition: transform 0.3s;
+      }
+
+      .product-card:nth-child(1) {
+        background: #f5f5f5;
+      }
+
+      .product-card:nth-child(2) {
+        background: #e8e8e8;
+      }
+
+      .product-card:nth-child(3) {
+        background: #d5d5d5;
+      }
+
+      .product-card:nth-child(4) {
+        background: #2a2a2a;
+        color: white;
+      }
+
+      .product-card:hover {
+        transform: translateY(-5px);
+      }
+
+      .product-card img {
+        max-width: 150px;
+        margin-bottom: 20px;
+      }
+
+      .product-card h3 {
+        font-size: 18px;
+        margin-bottom: 10px;
+      }
+
+      .product-card p {
+        font-size: 13px;
+        color: #666;
+        margin-bottom: 20px;
+        line-height: 1.5;
+      }
+
+      .product-card:nth-child(4) p {
+        color: #999;
+      }
+
+      .product-btn {
+        background: transparent;
+        border: 1px solid #333;
+        padding: 10px 25px;
+        cursor: pointer;
+        font-size: 13px;
+        border-radius: 4px;
+      }
+
+      .product-card:nth-child(4) .product-btn {
+        border-color: white;
+        color: white;
+      }
+
+      footer {
+        background: #e74c3c;
+        color: white;
+        padding: 60px 80px 30px 80px;
+        font-family: "Poppins", sans-serif;
+      }
+
+      .footer-content {
+        display: grid;
+        grid-template-columns: repeat(5, 1fr);
+        gap: 40px;
+        margin-bottom: 40px;
+      }
+
+      .footer-column h3 {
+        font-size: 18px;
+        margin-bottom: 20px;
+        font-weight: 600;
+      }
+
+      .footer-column p,
+      .footer-column a {
+        color: #fff;
+        text-decoration: none;
+        display: block;
+        margin-bottom: 10px;
+        font-size: 13px;
+        line-height: 1.7;
+      }
+
+      .footer-subscribe input {
+        width: 80%;
+        padding: 10px;
+        border: 1px solid white;
+        background: transparent;
+        color: white;
+        font-size: 13px;
+        outline: none;
+      }
+
+      .footer-subscribe input::placeholder {
+        color: #fff;
+      }
+
+      .subscribe-btn {
+        color: #ffffff;
+        border: none;
+        padding: 10px;
+        margin-left: -40px;
+        cursor: pointer;
+        font-size: 12px;
+        font-weight: bold;
+        background: #e74c3c;
+      }
+
+      .qr-code {
+        width: 80px;
+        height: 80px;
+        background: white;
+        margin-bottom: 10px;
+        border-radius: 5px;
+      }
+
+      .app-buttons img {
+        width: 120px;
+        display: block;
+        margin-bottom: 8px;
+      }
+
+      .social-icons {
+        display: flex;
+        gap: 15px;
+        margin-top: 15px;
+      }
+
+      .social-icons i {
+        font-size: 16px;
+        cursor: pointer;
+        transition: 0.3s;
+      }
+
+      .social-icons i:hover {
+        opacity: 0.7;
+      }
+
+      .footer-bottom {
+        text-align: center;
+        padding-top: 25px;
+        border-top: 1px solid rgba(255, 255, 255, 0.3);
+        font-size: 13px;
+        opacity: 0.9;
+      }
+
+      @media (max-width: 900px) {
+        .footer-content {
+          grid-template-columns: repeat(2, 1fr);
+          gap: 30px;
+        }
+      }
+
+      @media (max-width: 600px) {
+        .footer-content {
+          grid-template-columns: 1fr;
+          text-align: center;
+        }
+
+        .footer-subscribe input {
+          width: 100%;
+          margin-bottom: 10px;
+        }
+
+        .subscribe-btn {
+          width: 100%;
+          margin-left: 0;
+        }
+      }
+      .signup-btn {
+        background: #e74c3c;
+        color: white;
+        padding: 8px 20px;
+        border: none;
+        cursor: pointer;
+        font-size: 14px;
+        border-radius: 4px;
+        transition: background 0.3s ease;
+        font-weight: 500;
+      }
+
+      .signup-btn:hover {
+        background: #c0392b;
+      }
+
+      .cart-btn {
+        background-color: white;
+        border: 1px solid #ddd;
+        padding: 8px 15px;
+        border-radius: 4px;
+        cursor: pointer;
+        font-size: 14px;
+        font-weight: 500;
+      }
+
+      .cart-btn:hover {
+        background-color: #f5f5f5;
+      }
+
+      .user-icon {
+        background: white;
+        border: 1px solid #ddd;
+        cursor: pointer;
+        font-size: 18px;
+        display: none;
+        align-items: center;
+        gap: 5px;
+        padding: 8px 15px;
+        color: black;
+        text-decoration: none;
+        border-radius: 4px;
+      }
+
+      .user-icon:hover {
+        background-color: #f0f0f0;
+      }
+
+      .username-text {
+        font-size: 13px;
+      }
+    </style>
+  </head>
+
+  <body>
+    <div class="top-banner">
+      Summer Sale For All Swim Suits And Free Express Delivery - OFF 50%!
+      <a href="#">ShopNow</a>
+    </div>
+
+    <header>
+      <div class="logo">E-commerce</div>
+      <nav>
+        <a href="index.html">Home</a>
+        <a href="Contact.html">Contact</a>
+        <a href="about.html">About</a>
+        <a href="signup.html">Sign Up</a>
+        <button class="shop-btn" onclick="window.location.href='shop.html'">
+          Shop
+        </button>
+      </nav>
+      <div class="header-right">
+        <input
+          type="text"
+          class="search-bar"
+          placeholder="What are you looking for?"
+        />
+        <i class="fas fa-search"></i>
+        <button class="cart-btn">🛒</button>
+        <a href="account.html" class="user-icon">
+          👤 <span class="username-text">username</span>
+        </a>
+        <button class="signup-btn">Log In</button>
+      </div>
+    </header>
+
+    <section class="hero">
+      <div class="hero-slider">
+        <div class="hero-slide">
+          <img src="img/iPhone 14.png" alt="iPhone 14" />
+        </div>
+        <div class="hero-slide">
+          <img src="img/Headphones.png" alt="Headphones" />
+        </div>
+        <div class="hero-slide">
+          <img src="img/Watch.png" alt="Watch" />
+        </div>
+        <div class="hero-slide">
+          <img src="img/Speaker.png" alt="Speaker" />
+        </div>
+        <div class="hero-slide">
+          <img src="img/Laptop.png" alt="Laptop" />
+        </div>
+      </div>
+      <div class="hero-dots">
+        <div class="dot active"></div>
+        <div class="dot"></div>
+        <div class="dot"></div>
+        <div class="dot"></div>
+        <div class="dot"></div>
+      </div>
+    </section>
+
+    <div class="section-title">
+      <div class="red-bar"></div>
+      <div>
+        <span>Featured</span>
+        <h2>Shop Collection</h2>
+      </div>
+    </div>
+
+    <div class="shop-collection">
+      <div class="collection-item">
+        <img src="img/Headband.png" alt="Headband" style="width: 125%; height: auto;">
+        <div>
+          <h3>Headband</h3>
+          <a href="#" class="collection-link">Collection →</a>
+        </div>
+      </div>
+      <div class="collection-item">
+        <img src="img/Earbuds.png" alt="Earbuds" />
+        <div>
+          <h3>Earbuds</h3>
+          <a href="#" class="collection-link">Collection →</a>
+        </div>
+      </div>
+      <div class="collection-item">
+        <img
+          src="img/Accessories.png"
+          alt="Accessories"
+        />
+        <div>
+          <h3>Accessories</h3>
+          <a href="#" class="collection-link">Collection →</a>
+        </div>
+      </div>
+    </div>
+
+    <div class="section-title">
+      <div class="red-bar"></div>
+      <div>
+        <span>Featured</span>
+        <h2>Promotion</h2>
+      </div>
+    </div>
+
+    <div class="promotion-section">
+      <div class="promo-left">
+        <img
+          src="img/speaker-man.png"
+          alt="Headphones"
+          style="transform: scale(1.2); height: 101%; width: 95%"
+        />
+      </div>
+      <div class="promo-right">
+        <div class="promo-tag">PROMOTION</div>
+        <h2>Hurry up! 40% OFF</h2>
+        <p>Thousands of high tech are waiting for you</p>
+        <div class="promo-expires">Offer expires in:</div>
+        <div class="countdown">
+          <div class="countdown-item">
+            <div class="countdown-number">02</div>
+            <div class="countdown-label">Days</div>
+          </div>
+          <div class="countdown-item">
+            <div class="countdown-number">12</div>
+            <div class="countdown-label">Hours</div>
+          </div>
+          <div class="countdown-item">
+            <div class="countdown-number">45</div>
+            <div class="countdown-label">Minutes</div>
+          </div>
+          <div class="countdown-item">
+            <div class="countdown-number">05</div>
+            <div class="countdown-label">Seconds</div>
+          </div>
+        </div>
+        <button class="shop-now-btn">Shop now</button>
+      </div>
+    </div>
+
+    <div class="section-title">
+      <div class="red-bar"></div>
+      <div>
+        <span>Our Products</span>
+        <h2>Special promotion</h2>
+      </div>
+    </div>
+
+    <section class="iphone-section">
+      <div class="iphone-content">
+        <div class="iphone-tag">Pro.Beyond.</div>
+        <h2>iPhone 14 <span>Pro</span></h2>
+        <p>Created to change everything for the better. For everyone</p>
+        <button class="shop-now-outline">Shop Now</button>
+      </div>
+      <div class="iphone-image">
+        <img src="img/iPhone 14 Pro.png" alt="iPhone 14 Pro" />
+      </div>
+    </section>
+
+    <section class="feedback-section">
+      <h2>Feedback Corner</h2>
+      <div class="feedback-cards">
+        <div class="feedback-card">
+          <div class="quote">"</div>
+          <div class="feedback-name">Emily Wilson</div>
+          <p class="feedback-text">
+            The customer experience was exceptional from start to finish. The
+            website is user-friendly, the checkout process was smooth, and the
+            clothes I ordered fit perfectly. I'm beyond satisfied!
+          </p>
+        </div>
+        <div class="feedback-card pink">
+          <div class="quote">"</div>
+          <div class="feedback-name">Sarah Thompson</div>
+          <p class="feedback-text">
+            I absolutely love the quality and style of the clothing I purchased
+            from this website. Customer service was outstanding, and I received
+            my order quickly. Highly recommend!
+          </p>
+        </div>
+        <div class="feedback-card">
+          <div class="quote">"</div>
+          <div class="feedback-name">Olivia Martinez</div>
+          <p class="feedback-text">
+            I had a great experience shopping on this website. The clothes I
+            bought are fashionable and comfortable. Highly satisfied!
+          </p>
+        </div>
+      </div>
+
+      <div class="section-title">
+        <div class="red-bar"></div>
+        <div>
+          <span>Our Products</span>
+          <h2>Explore Our Products</h2>
+        </div>
+      </div>
+
+      <div class="products-grid">
+        <div class="product-card">
+          <img src="img/Popular Products.png" alt="Popular Products" />
+          <h3>Popular Products</h3>
+          <p>
+            iPad combines a magnificent 10.2-inch Retina display, incredible
+            performance, multitasking and ease of use.
+          </p>
+          <button class="product-btn">Shop Now</button>
+        </div>
+        <div class="product-card">
+          <img
+            src="img/iPad Pro.png"
+            alt="iPad Pro"
+          />
+          <h3>Ipad Pro</h3>
+          <p>
+            iPad combines a magnificent 10.2-inch Retina display, incredible
+            performance, multitasking and ease of use.
+          </p>
+          <button class="product-btn">Shop Now</button>
+        </div>
+        <div class="product-card">
+          <img
+            src="img/Samsung Galaxy.png"
+            alt="Samsung Galaxy"
+          />
+          <h3>Samsung Galaxy</h3>
+          <p>
+            iPad combines a magnificent 10.2-inch Retina display, incredible
+            performance, multitasking and ease of use.
+          </p>
+          <button class="product-btn">Shop Now</button>
+        </div>
+        <div class="product-card">
+          <img
+            src="img/MackbookPro.png"
+            alt="Macbook Pro"
+          />
+          <h3>Macbook Pro</h3>
+          <p>
+            iPad combines a magnificent 10.2-inch Retina display, incredible
+            performance, multitasking and ease of use.
+          </p>
+          <button class="product-btn">Shop Now</button>
+        </div>
+      </div>
+    </section>
+
+    <footer>
+      <div class="footer-content">
+        <div class="footer-column footer-subscribe">
+          <h3>Exclusive</h3>
+          <p>Subscribe</p>
+          <p>Get 10% off your first order</p>
+          <div class="email-input-wrapper">
+            <input type="email" placeholder="Enter your email" />
+            <button class="subscribe-btn">→</button>
+          </div>
+        </div>
+
+        <div class="footer-column">
+          <h3>Support</h3>
+          <p>111 Bijoy sarani, Dhaka,<br />DH 1515, Bangladesh.</p>
+          <p>exclusive@gmail.com</p>
+          <p>+88015-88888-9999</p>
+        </div>
+
+        <div class="footer-column">
+          <h3>Account</h3>
+          <a href="#">My Account</a>
+          <a href="#">Login / Register</a>
+          <a href="#">Cart</a>
+          <a href="#">Wishlist</a>
+          <a href="#">Shop</a>
+        </div>
+
+        <div class="footer-column">
+          <h3>Quick Link</h3>
+          <a href="#">Privacy Policy</a>
+          <a href="#">Terms Of Use</a>
+          <a href="#">FAQ</a>
+          <a href="#">Contact</a>
+        </div>
+
+        <div class="footer-column">
+          <h3>Download App</h3>
+          <p style="font-size: 11px; opacity: 0.8">
+            Save $3 with App New User Only
+          </p>
+          <div class="qr-and-apps">
+            <img src="img/qrcode.png" alt="" class="qr-code" />
+            <div class="app-buttons">
+              <img
+                src="https://upload.wikimedia.org/wikipedia/commons/7/78/Google_Play_Store_badge_EN.svg"
+                alt="Google Play"
+              />
+              <img
+                src="https://upload.wikimedia.org/wikipedia/commons/3/3c/Download_on_the_App_Store_Badge.svg"
+                alt="App Store"
+              />
+            </div>
+          </div>
+          <div class="social-icons">
+            <i class="fab fa-facebook-f"></i>
+            <i class="fab fa-twitter"></i>
+            <i class="fab fa-instagram"></i>
+            <i class="fab fa-linkedin-in"></i>
+          </div>
+        </div>
+      </div>
+
+      <div class="footer-bottom">
+        © Copyright Rimel 2022. All right reserved
+      </div>
+    </footer>
+
+    <script src="auth.js"></script>
+    <script>
+      function updateCountdown() {
+        const countdownElements =
+          document.querySelectorAll(".countdown-number");
+        if (countdownElements.length === 0) return;
+
+        let days = parseInt(countdownElements[0].textContent);
+        let hours = parseInt(countdownElements[1].textContent);
+        let minutes = parseInt(countdownElements[2].textContent);
+        let seconds = parseInt(countdownElements[3].textContent);
+
+        setInterval(() => {
+          seconds--;
+          if (seconds < 0) {
+            seconds = 59;
+            minutes--;
+          }
+          if (minutes < 0) {
+            minutes = 59;
+            hours--;
+          }
+          if (hours < 0) {
+            hours = 23;
+            days--;
+          }
+          if (days < 0) {
+            days = 0;
+            hours = 0;
+            minutes = 0;
+            seconds = 0;
+          }
+
+          countdownElements[0].textContent = days.toString().padStart(2, "0");
+          countdownElements[1].textContent = hours.toString().padStart(2, "0");
+          countdownElements[2].textContent = minutes
+            .toString()
+            .padStart(2, "0");
+          countdownElements[3].textContent = seconds
+            .toString()
+            .padStart(2, "0");
+        }, 1000);
+      }
+
+      let currentSlide = 0;
+      const slides = document.querySelectorAll(".hero-slide");
+      const dots = document.querySelectorAll(".dot");
+      const slider = document.querySelector(".hero-slider");
+      const totalSlides = slides.length;
+
+      function goToSlide(index) {
+        currentSlide = index;
+        if (slider) {
+          slider.style.transform = `translateX(-${currentSlide * 100}%)`;
+        }
+        dots.forEach((dot, i) => {
+          dot.classList.toggle("active", i === currentSlide);
+        });
+      }
+
+      function nextSlide() {
+        currentSlide = (currentSlide + 1) % totalSlides;
+        goToSlide(currentSlide);
+      }
+
+      dots.forEach((dot, index) => {
+        dot.addEventListener("click", () => {
+          goToSlide(index);
+        });
+      });
+
+      let slideInterval = setInterval(nextSlide, 3000);
+
+      const heroSection = document.querySelector(".hero");
+      if (heroSection) {
+        heroSection.addEventListener("mouseenter", () => {
+          clearInterval(slideInterval);
+        });
+        heroSection.addEventListener("mouseleave", () => {
+          slideInterval = setInterval(nextSlide, 3000);
+        });
+      }
+
+      document.addEventListener("DOMContentLoaded", () => {
+        updateCountdown();
+      });
+    </script>
+  </body>
+</html>

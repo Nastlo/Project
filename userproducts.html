@@ -1,0 +1,508 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>E-commerce - My Products</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: Arial, sans-serif;
+            line-height: 1.6;
+            background-color: #f5f5f5;
+        }
+
+        .promo-banner {
+            background-color: #e74c3c;
+            color: white;
+            text-align: center;
+            padding: 10px;
+            font-size: 14px;
+        }
+
+        .promo-banner a {
+            color: white;
+            text-decoration: underline;
+            margin-left: 5px;
+        }
+
+        header {
+            background-color: white;
+            padding: 15px 50px;
+            box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .logo {
+            font-size: 24px;
+            font-weight: bold;
+            color: #000;
+        }
+
+        nav {
+            display: flex;
+            gap: 30px;
+            align-items: center;
+        }
+
+        nav a {
+            text-decoration: none;
+            color: #333;
+            font-size: 14px;
+            transition: color 0.3s;
+        }
+
+        nav a:hover {
+            color: #e74c3c;
+        }
+
+        .shop-btn {
+            background: #e74c3c;
+            color: white;
+            padding: 8px 20px;
+            border: none;
+            cursor: pointer;
+            font-size: 14px;
+            border-radius: 4px;
+        }
+
+        .header-right {
+            display: flex;
+            align-items: center;
+            gap: 20px;
+        }
+
+        .search-bar {
+            padding: 8px 15px;
+            border: 1px solid #ddd;
+            width: 200px;
+            font-size: 13px;
+            border-radius: 4px;
+        }
+
+        .cart-btn {
+            background-color: white;
+            border: 1px solid #ddd;
+            padding: 8px 15px;
+            border-radius: 4px;
+            cursor: pointer;
+            font-size: 14px;
+        }
+
+        .signup-btn {
+            background: #e74c3c;
+            color: white;
+            padding: 8px 20px;
+            border: none;
+            cursor: pointer;
+            font-size: 14px;
+            border-radius: 4px;
+        }
+
+        .user-icon {
+            background: white;
+            border: 1px solid #ddd;
+            cursor: pointer;
+            font-size: 18px;
+            display: none;
+            align-items: center;
+            gap: 5px;
+            padding: 8px 15px;
+            color: black;
+            text-decoration: none;
+            border-radius: 4px;
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 60px auto;
+            padding: 0 20px;
+            min-height: calc(100vh - 600px);
+        }
+
+        .newproduct {
+            background-color: #007bff;
+            color: white;
+            padding: 12px 20px;
+            font-size: 16px;
+            font-weight: 600;
+            border-radius: 4px 4px 0 0;
+            display: inline-block;
+            margin-bottom: 0;
+            cursor: pointer;
+            text-decoration: none;
+        }
+
+        .table-container {
+            background-color: white;
+            border-radius: 0 8px 8px 8px;
+            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.08);
+            overflow-x: auto;
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+        }
+
+        thead {
+            background-color: #f8f9fa;
+        }
+
+        th {
+            padding: 15px;
+            text-align: left;
+            font-weight: 600;
+            color: #333;
+            font-size: 14px;
+            border-bottom: 2px solid #dee2e6;
+        }
+
+        td {
+            padding: 20px 15px;
+            border-bottom: 1px solid #dee2e6;
+            color: #666;
+            font-size: 14px;
+            vertical-align: middle;
+        }
+
+        tbody tr:hover {
+            background-color: #f8f9fa;
+        }
+
+        .product-image {
+            width: 120px;
+            height: 80px;
+            object-fit: contain;
+            border-radius: 4px;
+        }
+
+        .actions {
+            display: flex;
+            gap: 10px;
+        }
+
+        .btn-view {
+            background-color: #007bff;
+            color: white;
+            padding: 8px 20px;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+            font-size: 13px;
+        }
+
+        .btn-view:hover {
+            background-color: #0056b3;
+        }
+
+        .btn-delete {
+            background-color: #e74c3c;
+            color: white;
+            padding: 8px 20px;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+            font-size: 13px;
+        }
+
+        .btn-delete:hover {
+            background-color: #c0392b;
+        }
+
+        footer {
+            background: #e74c3c;
+            color: white;
+            padding: 60px 80px 30px 80px;
+            margin-top: 80px;
+        }
+
+        .footer-content {
+            display: grid;
+            grid-template-columns: repeat(5, 1fr);
+            gap: 40px;
+            margin-bottom: 40px;
+        }
+
+        .footer-column h3 {
+            font-size: 18px;
+            margin-bottom: 20px;
+            font-weight: 600;
+        }
+
+        .footer-column p,
+        .footer-column a {
+            color: #fff;
+            text-decoration: none;
+            display: block;
+            margin-bottom: 10px;
+            font-size: 13px;
+            line-height: 1.7;
+        }
+
+        .footer-subscribe input {
+            width: 80%;
+            padding: 10px;
+            border: 1px solid white;
+            background: transparent;
+            color: white;
+            font-size: 13px;
+            outline: none;
+        }
+
+        .subscribe-btn {
+            color: #ffffff;
+            border: none;
+            padding: 10px;
+            margin-left: -40px;
+            cursor: pointer;
+            font-size: 12px;
+            background: #e74c3c;
+        }
+
+        .footer-bottom {
+            text-align: center;
+            padding-top: 25px;
+            border-top: 1px solid rgba(255, 255, 255, 0.3);
+            font-size: 13px;
+            opacity: 0.9;
+        }
+
+        .empty-state {
+            text-align: center;
+            padding: 60px 20px;
+            color: #666;
+        }
+
+        .empty-state i {
+            font-size: 64px;
+            color: #ddd;
+            margin-bottom: 20px;
+        }
+
+        @keyframes slideIn {
+            from {
+                transform: translateX(100%);
+                opacity: 0;
+            }
+            to {
+                transform: translateX(0);
+                opacity: 1;
+            }
+        }
+
+        .notification {
+            position: fixed;
+            top: 20px;
+            right: 20px;
+            padding: 15px 25px;
+            background-color: #28a745;
+            color: white;
+            border-radius: 4px;
+            box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+            z-index: 1000;
+            animation: slideIn 0.3s ease;
+        }
+    </style>
+</head>
+<body>
+    <div class="promo-banner">
+        Summer Sale For All Swim Suits And Free Express Delivery - OFF 50%!
+        <a href="#">ShopNow</a>
+    </div>
+
+    <header>
+        <div class="logo">E-commerce</div>
+        <nav>
+            <a href="index.html">Home</a>
+            <a href="Contact.html">Contact</a>
+            <a href="about.html">About</a>
+            <a href="signup.html">Sign Up</a>
+            <button class="shop-btn" onclick="window.location.href='shop.html'">Shop</button>
+        </nav>
+        <div class="header-right">
+            <input type="text" class="search-bar" placeholder="What are you looking for?">
+            <i class="fas fa-search"></i>
+            <button class="cart-btn">🛒</button>
+            <a href="account.html" class="user-icon">
+                👤 <span class="username-text">username</span>
+            </a>
+            <button class="signup-btn">Log In</button>
+        </div>
+    </header>
+
+    <div class="container">
+        <a href="Createproduct.html" class="newproduct">+ New Product</a>
+        <div class="table-container">
+            <table>
+                <thead>
+                    <tr>
+                        <th>ID</th>
+                        <th>Brand</th>
+                        <th>Model</th>
+                        <th>Category</th>
+                        <th>Image</th>
+                        <th>Price</th>
+                        <th>Rating</th>
+                        <th>Actions</th>
+                    </tr>
+                </thead>
+                <tbody id="productTableBody">
+                    <!-- Products yüklənəcək -->
+                </tbody>
+            </table>
+        </div>
+    </div>
+
+    <footer>
+        <div class="footer-content">
+            <div class="footer-column footer-subscribe">
+                <h3>Exclusive</h3>
+                <p>Subscribe</p>
+                <p>Get 10% off your first order</p>
+                <div class="email-input-wrapper">
+                    <input type="email" placeholder="Enter your email">
+                    <button class="subscribe-btn">→</button>
+                </div>
+            </div>
+
+            <div class="footer-column">
+                <h3>Support</h3>
+                <p>111 Bijoy sarani, Dhaka,<br>DH 1515, Bangladesh.</p>
+                <p>exclusive@gmail.com</p>
+                <p>+88015-88888-9999</p>
+            </div>
+
+            <div class="footer-column">
+                <h3>Account</h3>
+                <a href="#">My Account</a>
+                <a href="#">Login / Register</a>
+                <a href="#">Cart</a>
+                <a href="#">Wishlist</a>
+                <a href="#">Shop</a>
+            </div>
+
+            <div class="footer-column">
+                <h3>Quick Link</h3>
+                <a href="#">Privacy Policy</a>
+                <a href="#">Terms Of Use</a>
+                <a href="#">FAQ</a>
+                <a href="#">Contact</a>
+            </div>
+
+            <div class="footer-column">
+                <h3>Download App</h3>
+                <p style="font-size: 11px; opacity: 0.8;">Save $3 with App New User Only</p>
+                <div class="social-icons">
+                    <i class="fab fa-facebook-f"></i>
+                    <i class="fab fa-twitter"></i>
+                    <i class="fab fa-instagram"></i>
+                    <i class="fab fa-linkedin-in"></i>
+                </div>
+            </div>
+        </div>
+
+        <div class="footer-bottom">
+            © Copyright Rimel 2022. All right reserved
+        </div>
+    </footer>
+
+    <script src="auth.js"></script>
+    <script>
+        function loadProducts() {
+            const tbody = document.getElementById("productTableBody");
+            const products = JSON.parse(localStorage.getItem("products")) || [];
+
+            tbody.innerHTML = '';
+
+            if (products.length === 0) {
+                tbody.innerHTML = `
+                    <tr>
+                        <td colspan="8" class="empty-state">
+                            <i class="fas fa-box-open"></i>
+                            <h3>No products yet</h3>
+                            <p>Create your first product to get started!</p>
+                        </td>
+                    </tr>
+                `;
+                return;
+            }
+
+            products.forEach((product, index) => {
+                const row = document.createElement("tr");
+                row.innerHTML = `
+                    <td>${index + 1}</td>
+                    <td>${product.brand}</td>
+                    <td>${product.model}</td>
+                    <td>${product.category}</td>
+                    <td>
+                        <img src="${product.imageURL}" alt="${product.brand}" class="product-image" onerror="this.src='https://via.placeholder.com/120x80/e8f4f8/333333?text=No+Image'">
+                    </td>
+                    <td>$${product.price}</td>
+                    <td>${product.rating}/5</td>
+                    <td>
+                        <div class="actions">
+                            <button class="btn-view" onclick="viewProduct(${index})">View</button>
+                            <button class="btn-delete" onclick="deleteProduct(${index})">Delete</button>
+                        </div>
+                    </td>
+                `;
+                tbody.appendChild(row);
+            });
+        }
+
+        function viewProduct(index) {
+            const products = JSON.parse(localStorage.getItem("products")) || [];
+            const product = products[index];
+            
+            // ProductPage.html-ə keçid üçün məhsul məlumatlarını sessionStorage-ə yazaq
+            sessionStorage.setItem('selectedProduct', JSON.stringify(product));
+            window.location.href = 'ProductPage.html';
+        }
+
+        function deleteProduct(index) {
+            const products = JSON.parse(localStorage.getItem("products")) || [];
+            const product = products[index];
+            
+            if (confirm(`Are you sure you want to delete ${product.brand} ${product.model}?`)) {
+                products.splice(index, 1);
+                localStorage.setItem("products", JSON.stringify(products));
+                showNotification('Product deleted successfully!');
+                loadProducts();
+            }
+        }
+
+        function showNotification(message) {
+            const notification = document.createElement('div');
+            notification.className = 'notification';
+            notification.textContent = message;
+            document.body.appendChild(notification);
+            
+            setTimeout(() => {
+                notification.style.animation = 'slideIn 0.3s ease reverse';
+                setTimeout(() => notification.remove(), 300);
+            }, 3000);
+        }
+
+        document.querySelector('.search-bar').addEventListener('input', function(e) {
+            const searchTerm = e.target.value.toLowerCase();
+            const rows = document.querySelectorAll('#productTableBody tr');
+            
+            rows.forEach(row => {
+                const text = row.textContent.toLowerCase();
+                row.style.display = text.includes(searchTerm) ? '' : 'none';
+            });
+        });
+
+        window.addEventListener('DOMContentLoaded', loadProducts);
+    </script>
+</body>
+</html>
