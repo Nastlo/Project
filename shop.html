@@ -535,14 +535,10 @@
           placeholder="search"
           id="productSearch"
         />
-        <button class="all-products-btn" onclick="showAllProducts()">
+        <button class="all-products-btn" id="allProductsBtn">
           All products
         </button>
-        <select
-          class="sort-dropdown"
-          id="sortDropdown"
-          onchange="sortProducts()"
-        >
+        <select class="sort-dropdown" id="sortDropdown">
           <option value="">Sort by</option>
           <option value="price-low">Price: Low to High</option>
           <option value="price-high">Price: High to Low</option>
@@ -557,30 +553,30 @@
             <div class="category-section">
               <h3>Category</h3>
               <ul class="category-list">
-                <li onclick="filterCategory('all')" class="active">All</li>
-                <li onclick="filterCategory('clothing')">Clothing</li>
-                <li onclick="filterCategory('footwear')">Footwear</li>
-                <li onclick="filterCategory('accessories')">Accessories</li>
-                <li onclick="filterCategory('mobile')">Mobile</li>
-                <li onclick="filterCategory('electronics')">Electronics</li>
+                <li data-category="all" class="active">All</li>
+                <li data-category="clothing">Clothing</li>
+                <li data-category="footwear">Footwear</li>
+                <li data-category="accessories">Accessories</li>
+                <li data-category="mobile">Mobile</li>
+                <li data-category="electronics">Electronics</li>
               </ul>
             </div>
 
             <div class="rate-section">
               <h3>Rating</h3>
-              <div class="rate-option" onclick="filterRating(5)">
+              <div class="rate-option" data-rating="5">
                 <span class="stars">★★★★★</span>
               </div>
-              <div class="rate-option" onclick="filterRating(4)">
+              <div class="rate-option" data-rating="4">
                 <span class="stars">★★★★</span>
               </div>
-              <div class="rate-option" onclick="filterRating(3)">
+              <div class="rate-option" data-rating="3">
                 <span class="stars">★★★</span>
               </div>
-              <div class="rate-option" onclick="filterRating(2)">
+              <div class="rate-option" data-rating="2">
                 <span class="stars">★★</span>
               </div>
-              <div class="rate-option" onclick="filterRating(1)">
+              <div class="rate-option" data-rating="1">
                 <span class="stars">★</span>
               </div>
             </div>
@@ -591,6 +587,7 @@
       </div>
     </div>
 
+    <!-- Rating Modal -->
     <div id="ratingModal" class="rating-modal">
       <div class="rating-modal-content">
         <h2>Rate this product</h2>
@@ -666,13 +663,14 @@
 
     <script src="auth.js"></script>
     <script>
-      const API_BASE_URL = 'http://195.26.245.5:9505/api';
+      // API_BASE_URL zaten auth.js'de tanımlı, tekrar tanımlamaya gerek yok
       let allProducts = [];
       let currentCategory = "all";
       let currentRating = 0;
       let selectedProductForRating = null;
       let currentRatingValue = 0;
 
+      // Kendi clothing ürünlerimiz
       const customClothingProducts = [
         {
           id: 'cloth_001',
@@ -989,8 +987,10 @@
 
         document.querySelectorAll(".category-list li").forEach((li) => {
           li.classList.remove("active");
+          if (li.dataset.category === category) {
+            li.classList.add("active");
+          }
         });
-        event.target.classList.add("active");
       }
 
       function filterRating(rating) {
@@ -999,8 +999,10 @@
 
         document.querySelectorAll(".rate-option").forEach((opt) => {
           opt.classList.remove("active");
+          if (parseInt(opt.dataset.rating) === rating) {
+            opt.classList.add("active");
+          }
         });
-        event.target.closest(".rate-option").classList.add("active");
       }
 
       function applyFilters() {
@@ -1084,6 +1086,30 @@
         const searchInput = document.getElementById("productSearch");
         if (searchInput) {
           searchInput.addEventListener("input", applyFilters);
+        }
+
+        document.querySelectorAll('.category-list li').forEach(li => {
+          li.addEventListener('click', function() {
+            const category = this.dataset.category;
+            filterCategory(category);
+          });
+        });
+
+        document.querySelectorAll('.rate-option').forEach(opt => {
+          opt.addEventListener('click', function() {
+            const rating = parseInt(this.dataset.rating);
+            filterRating(rating);
+          });
+        });
+
+        const sortDropdown = document.getElementById("sortDropdown");
+        if (sortDropdown) {
+          sortDropdown.addEventListener("change", sortProducts);
+        }
+
+        const allProductsBtn = document.getElementById("allProductsBtn");
+        if (allProductsBtn) {
+          allProductsBtn.addEventListener("click", showAllProducts);
         }
       });
     </script>
