@@ -41,6 +41,8 @@
         justify-content: space-between;
         align-items: center;
         box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+        position: relative;
+        z-index: 100;
       }
 
       .logo {
@@ -59,6 +61,7 @@
         text-decoration: none;
         color: #333;
         font-size: 14px;
+        transition: color 0.3s;
       }
 
       nav a:hover {
@@ -73,6 +76,7 @@
         cursor: pointer;
         font-size: 14px;
         border-radius: 4px;
+        transition: background 0.3s;
       }
 
       .shop-btn:hover {
@@ -101,6 +105,7 @@
         cursor: pointer;
         font-size: 14px;
         font-weight: 500;
+        transition: background 0.3s;
       }
 
       .cart-btn:hover {
@@ -119,6 +124,7 @@
         color: black;
         text-decoration: none;
         border-radius: 4px;
+        transition: background 0.3s;
       }
 
       .user-icon:hover {
@@ -160,6 +166,11 @@
       .breadcrumb a {
         color: #666;
         text-decoration: none;
+        transition: color 0.3s;
+      }
+
+      .breadcrumb a:hover {
+        color: #e74c3c;
       }
 
       .breadcrumb span {
@@ -588,7 +599,7 @@
             Save $3 with App New User Only
           </p>
           <div class="qr-and-apps">
-            <img src="img/qrcode.png" alt="" class="qr-code" />
+            <img src="img/qrcode.png" alt="QR Code" class="qr-code" />
             <div class="app-buttons">
               <img
                 src="https://upload.wikimedia.org/wikipedia/commons/7/78/Google_Play_Store_badge_EN.svg"

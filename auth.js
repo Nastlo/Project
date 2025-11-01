@@ -1,9 +1,5 @@
 const API_BASE_URL = "http://195.26.245.5:9505/api";
 
-// ============================================
-// AUTH TOKEN MANAGEMENT
-// ============================================
-
 function getAuthToken() {
   return localStorage.getItem("authToken");
 }
@@ -15,10 +11,6 @@ function setAuthToken(token) {
 function removeAuthToken() {
   localStorage.removeItem("authToken");
 }
-
-// ============================================
-// UI UPDATES
-// ============================================
 
 function initializeAuth() {
   updateUserUI();
@@ -32,7 +24,6 @@ function updateUserUI() {
   const signupBtn = document.querySelector(".signup-btn");
 
   if (loggedInUser && userIcon && usernameText) {
-    // Username'i göster
     usernameText.textContent = loggedInUser.username || loggedInUser.name || "User";
     userIcon.href = "account.html";
     userIcon.style.display = "flex";
@@ -71,10 +62,6 @@ function checkLogin() {
   }
   return true;
 }
-
-// ============================================
-// CART MANAGEMENT
-// ============================================
 
 function addToCartUI(productId, productName, price, imageUrl) {
   if (!checkLogin()) return;
@@ -131,10 +118,6 @@ function clearCart() {
   localStorage.removeItem("cart");
   loadCartCount();
 }
-
-// ============================================
-// AUTH API FUNCTIONS
-// ============================================
 
 async function registerUser(name, surname, email, username, password) {
   try {
@@ -207,10 +190,6 @@ async function loginUser(username, password) {
     return { success: false, message: "Network error. Please try again." };
   }
 }
-
-// ============================================
-// PRODUCT API FUNCTIONS
-// ============================================
 
 async function fetchProducts(filters = {}) {
   try {
@@ -285,15 +264,15 @@ async function createProduct(productData) {
       body: JSON.stringify(productData),
     });
 
-    const data = await response.json();
-
     if (!response.ok) {
+      const data = await response.json();
       return {
         success: false,
         message: data.message || "Failed to create product",
       };
     }
 
+    const data = await response.json();
     return { success: true, data: data };
   } catch (error) {
     console.error("Create product error:", error);
@@ -317,15 +296,15 @@ async function updateProduct(productId, productData) {
       body: JSON.stringify(productData),
     });
 
-    const data = await response.json();
-
     if (!response.ok) {
+      const data = await response.json();
       return {
         success: false,
         message: data.message || "Failed to update product",
       };
     }
 
+    const data = await response.json();
     return { success: true, data: data };
   } catch (error) {
     console.error("Update product error:", error);
@@ -383,10 +362,6 @@ async function fetchMyProducts() {
   }
 }
 
-// ============================================
-// RATING API FUNCTIONS
-// ============================================
-
 async function submitProductRating(productId, rating) {
   try {
     const token = getAuthToken();
@@ -406,15 +381,15 @@ async function submitProductRating(productId, rating) {
       }),
     });
 
-    const data = await response.json();
-
     if (!response.ok) {
+      const data = await response.json();
       return {
         success: false,
         message: data.message || "Failed to submit rating",
       };
     }
 
+    const data = await response.json();
     return { success: true, data: data };
   } catch (error) {
     console.error("Submit rating error:", error);
@@ -445,10 +420,6 @@ async function fetchProductRatings(productId) {
     return { averageRating: 0, totalRatings: 0 };
   }
 }
-
-// ============================================
-// CATEGORY API FUNCTION
-// ============================================
 
 async function fetchCategories() {
   try {
@@ -496,9 +467,5 @@ async function fetchClientDetails() {
     return null;
   }
 }
-
-// ============================================
-// INITIALIZE ON PAGE LOAD
-// ============================================
 
 document.addEventListener("DOMContentLoaded", initializeAuth);
