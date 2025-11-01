@@ -51,7 +51,7 @@ function logoutUser() {
   if (confirm("Are you sure you want to log out?")) {
     removeAuthToken();
     // localStorage.removeItem("loggedInUser");
-    localStorage.removeItem("cart");
+    // localStorage.removeItem("cart");
     alert("Successfully logged out!");
     window.location.href = "index.html";
   }
