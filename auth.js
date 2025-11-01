@@ -1,15 +1,17 @@
 const API_BASE_URL = "http://195.26.245.5:9505/api";
 
 function getAuthToken() {
-  return localStorage.getItem("authToken");
+  const body = JSON.parse(localStorage.getItem("body"));
+  const token = body.token;
+  return token;
 }
 
-function setAuthToken(token) {
-  localStorage.setItem("authToken", token);
+function setAuthToken(body) {
+  localStorage.setItem("body", JSON.stringify(body));
 }
 
 function removeAuthToken() {
-  localStorage.removeItem("authToken");
+  localStorage.removeItem("body");
 }
 
 function initializeAuth() {
@@ -18,13 +20,15 @@ function initializeAuth() {
 }
 
 function updateUserUI() {
-  const loggedInUser = JSON.parse(localStorage.getItem("loggedInUser"));
+  // const loggedInUser = JSON.parse(localStorage.getItem("loggedInUser"));
+  const body = JSON.parse(localStorage.getItem("body"));
   const userIcon = document.querySelector(".user-icon");
   const usernameText = document.querySelector(".username-text");
   const signupBtn = document.querySelector(".signup-btn");
+  localStorage.removeItem("loggedInUser");
 
-  if (loggedInUser && userIcon && usernameText) {
-    usernameText.textContent = loggedInUser.username || loggedInUser.name || "User";
+  if (body && userIcon && usernameText) {
+    // usernameText.textContent = loggedInUser.username || loggedInUser.name || "User";
     userIcon.href = "account.html";
     userIcon.style.display = "flex";
 
@@ -46,7 +50,7 @@ function updateUserUI() {
 function logoutUser() {
   if (confirm("Are you sure you want to log out?")) {
     removeAuthToken();
-    localStorage.removeItem("loggedInUser");
+    // localStorage.removeItem("loggedInUser");
     localStorage.removeItem("cart");
     alert("Successfully logged out!");
     window.location.href = "index.html";
@@ -54,7 +58,7 @@ function logoutUser() {
 }
 
 function checkLogin() {
-  const loggedInUser = JSON.parse(localStorage.getItem("loggedInUser"));
+  const loggedInUser = JSON.parse(localStorage.getItem("body"));
   if (!loggedInUser) {
     alert("Please log in first!");
     window.location.href = "Login.html";
@@ -165,13 +169,13 @@ async function loginUser(username, password) {
     });
 
     const data = await response.json();
-
+    console.log(data)
     if (!response.ok) {
       return { success: false, message: data.message || "Login failed!" };
     }
 
-    if (data.token) {
-      setAuthToken(data.token);
+    if (data) {
+      setAuthToken(data.body);
     }
 
     const userInfo = {
@@ -451,17 +455,31 @@ async function fetchClientDetails() {
     if (!token) {
       return null;
     }
-
-    const response = await fetch(`${API_BASE_URL}/clients/get-details`, {
-      headers: {
+    fetch(`${API_BASE_URL}/clients/get-details`,
+      {
+        headers: {
         "Authorization": `Bearer ${token}`,
-        "Content-Type": "application/json"
+        }
       }
-    });
+    ).then(response => {
+      return response.json()
+    }).then(data => {
+      console.log(data)
+    })
 
-    if (!response.ok) throw new Error("Failed to fetch client details");
+    
 
-    return await response.json();
+    // const response = await fetch(`${API_BASE_URL}/clients/get-details`, {
+    //   headers: {
+    //     "Authorization": `Bearer ${token}`,
+    //   }
+    // });
+
+    // if (!response.ok) throw new Error("Failed to fetch client details");
+
+    // let response_data = await response.json();
+    // console.log(response_data);
+    // return response_data.data;
   } catch (error) {
     console.error("Fetch client details error:", error);
     return null;

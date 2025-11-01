@@ -466,20 +466,25 @@
 
     <script src="auth.js"></script>
     <script>
+      if (JSON.parse(localStorage.getItem("body"))) {
+            const body = JSON.parse(localStorage.getItem("body"));
+            const username = body.username;
+            document.querySelector(".username-text").innerHTML = username;
+      }
       document.addEventListener("DOMContentLoaded", async function () {
         const loggedInUser = JSON.parse(localStorage.getItem("loggedInUser"));
 
         if (!loggedInUser) {
-          alert("Please log in first!");
-          window.location.href = "Login.html";
+          // alert("Please log in first!");
+          // window.location.href = "Login.html";
           return;
         }
 
         const userCard = document.getElementById("userCard");
 
         try {
-          const clientDetails = await fetchClientDetails();
-
+          const clientDetails = await fetchCliensssssssstDetails();
+          console.log(clientDetails)
           let displayData = null;
 
           if (clientDetails) {
