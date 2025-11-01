@@ -567,8 +567,7 @@
         <div class="section-line"></div>
         <h3 class="section-title">Related Items</h3>
       </div>
-      <div class="products-grid" id="related-products">
-      </div>
+      <div class="products-grid" id="related-products"></div>
     </div>
 
     <footer>
@@ -637,14 +636,15 @@
     <script src="auth.js"></script>
 
     <script>
-      const apiUrl = "http://195.26.245.5:9505/api/products";
-
       function getProductId() {
         const params = new URLSearchParams(window.location.search);
         return params.get("id");
       }
 
       function getStars(rating) {
+        if (!rating || rating === 0) {
+          return "☆☆☆☆☆";
+        }
         const fullStars = Math.floor(rating);
         const emptyStars = 5 - fullStars;
         return "★".repeat(fullStars) + "☆".repeat(emptyStars);
@@ -652,32 +652,52 @@
 
       async function loadProduct() {
         const productId = getProductId();
-        if (!productId) return;
+        if (!productId) {
+          alert("Product not found!");
+          window.location.href = "shop.html";
+          return;
+        }
 
         try {
-          const response = await fetch(apiUrl);
-          const products = await response.json();
-          const product = products.find((p) => p.id == productId);
-          if (!product) return;
+          // Fetch product details from API
+          const product = await fetchProductById(productId);
 
-          document.querySelector(".product-image img").src =
-            product.imageUrl || "https://via.placeholder.com/400";
-          document.querySelector(
-            ".product-image img"
-          ).alt = `${product.brand} ${product.model}`;
+          if (!product) {
+            alert("Product not found!");
+            window.location.href = "shop.html";
+            return;
+          }
+            
+          // Fetch ratings
+          const ratings = await fetchProductRatings(productId);
 
-          document.querySelector(
-            ".product-title"
-          ).textContent = `${product.brand} ${product.model}`;
-          document.querySelector(".stars").textContent = getStars(
-            product.averageRating || 0
-          );
-          document.querySelector(".reviews").textContent = `(0 Reviews)`;
+document.querySelector(".product-image img").src =
+  product.imageUrl || "https://via.placeholder.com/400";
+document.querySelector(
+  ".product-image img"
+).alt = `${product.brand} ${product.model}`;
+
+document.querySelector(
+  ".product-title"
+).textContent = `${product.brand} ${product.model}`;
+
+const averageRating = ratings.averageRating || 0;
+const totalRatings = ratings.totalRatings || 0;
+
+document.querySelector(".stars").textContent =
+  getStars(averageRating);
+
+document.querySelector(
+  ".reviews"
+).textContent = `(${totalRatings} Reviews)`;
+
           document.querySelector(".stock").textContent =
             product.price > 0 ? "In Stock" : "Out of Stock";
+
           document.querySelector(
             ".price"
           ).textContent = `$${product.price.toFixed(2)}`;
+
           document.querySelector(".product-description").textContent =
             product.description || "No description available.";
 
@@ -686,7 +706,7 @@
               localStorage.getItem("loggedInUser")
             );
             if (!loggedInUser) {
-              alert("Lütfen önce giriş yapınız!");
+              alert("Please log in first!");
               window.location.href = "Login.html";
               return;
             }
@@ -699,52 +719,50 @@
             );
           };
 
+          // Load related products from API
+          const allProducts = await fetchProducts();
+          const relatedProducts = allProducts
+            .filter(
+              (p) => p.id != productId && p.categoryId === product.categoryId
+            )
+            .slice(0, 4);
+
           const relatedContainer = document.getElementById("related-products");
           relatedContainer.innerHTML = "";
 
-          const relatedProducts = products
-            .filter((p) => p.id != productId)
-            .slice(0, 4);
-          relatedProducts.forEach((rp) => {
+          for (const rp of relatedProducts) {
+            const rpRatings = await fetchProductRatings(rp.id);
+            const rpRating = rpRatings.averageRating || 0;
+            const rpTotalRatings = rpRatings.totalRatings || 0;
+
             const card = document.createElement("div");
             card.className = "product-card";
             card.innerHTML = `
-                        <div class="product-card-image">
-                            <img src="${
-                              rp.imageUrl || "https://via.placeholder.com/200"
-                            }" alt="${rp.brand} ${rp.model}">
-                        </div>
-                        <div class="product-card-info">
-                            <h4 class="product-card-title">${rp.brand} ${
-              rp.model
-            }</h4>
-                            <div class="product-card-price">
-                                <span class="current-price">$${rp.price.toFixed(
-                                  2
-                                )}</span>
-                                ${
-                                  rp.oldPrice
-                                    ? `<span class="old-price">$${rp.oldPrice.toFixed(
-                                        2
-                                      )}</span>`
-                                    : ""
-                                }
-                            </div>
-                            <div class="product-card-rating">
-                                <span class="product-card-stars">${getStars(
-                                  rp.averageRating || 0
-                                )}</span>
-                                <span class="product-card-reviews">(0)</span>
-                            </div>
-                        </div>
-                    `;
+        <div class="product-card-image">
+          <img src="${rp.imageUrl || "https://via.placeholder.com/200"}" alt="${
+              rp.brand
+            } ${rp.model}">
+        </div>
+        <div class="product-card-info">
+          <h4 class="product-card-title">${rp.brand} ${rp.model}</h4>
+          <div class="product-card-price">
+            <span class="current-price">$${rp.price.toFixed(2)}</span>
+          </div>
+          <div class="product-card-rating">
+            <span class="product-card-stars">${getStars(rpRating)}</span>
+            <span class="product-card-reviews">(${rpTotalRatings})</span>
+          </div>
+        </div>
+      `;
             card.onclick = () => {
-              window.location.href = `?id=${rp.id}`;
+              window.location.href = `ProductPage.html?id=${rp.id}`;
             };
             relatedContainer.appendChild(card);
-          });
+          }
         } catch (error) {
           console.error("Product load error:", error);
+          alert("Failed to load product!");
+          window.location.href = "shop.html";
         }
       }
 

@@ -200,6 +200,18 @@
         font-weight: normal;
       }
 
+      .loading-message {
+        text-align: center;
+        padding: 40px;
+        color: #666;
+      }
+
+      .error-message {
+        text-align: center;
+        padding: 40px;
+        color: #e74c3c;
+      }
+
       footer {
         background: #e74c3c;
         color: white;
@@ -371,28 +383,9 @@
     <div class="container">
       <a href="userproducts.html" class="badge">My products for sale</a>
 
-      <div class="card">
+      <div class="card" id="userCard">
         <h1>User Details</h1>
-
-        <div class="detail-row">
-          <span class="label">Name:</span>
-          <span class="value" id="user-name">Loading...</span>
-        </div>
-
-        <div class="detail-row">
-          <span class="label">Surname:</span>
-          <span class="value" id="user-surname">Loading...</span>
-        </div>
-
-        <div class="detail-row">
-          <span class="label">Email:</span>
-          <span class="value" id="user-email">Loading...</span>
-        </div>
-
-        <div class="detail-row">
-          <span class="label">Username:</span>
-          <span class="value" id="user-username">Loading...</span>
-        </div>
+        <div class="loading-message">Loading user details...</div>
       </div>
     </div>
 
@@ -466,7 +459,8 @@
 
     <script src="auth.js"></script>
     <script>
-      document.addEventListener("DOMContentLoaded", function () {
+      document.addEventListener("DOMContentLoaded", async function () {
+        // Check if user is logged in
         const loggedInUser = JSON.parse(localStorage.getItem("loggedInUser"));
 
         if (!loggedInUser) {
@@ -475,18 +469,67 @@
           return;
         }
 
-        const nameElement = document.getElementById("user-name");
-        const surnameElement = document.getElementById("user-surname");
-        const emailElement = document.getElementById("user-email");
-        const usernameElement = document.getElementById("user-username");
+        const userCard = document.getElementById("userCard");
 
-        if (nameElement) nameElement.textContent = loggedInUser.name || "N/A";
-        if (surnameElement)
-          surnameElement.textContent = loggedInUser.surname || "N/A";
-        if (emailElement)
-          emailElement.textContent = loggedInUser.email || "N/A";
-        if (usernameElement)
-          usernameElement.textContent = loggedInUser.username || "N/A";
+        try {
+          // Try to fetch details from API
+          const clientDetails = await fetchClientDetails();
+
+          let displayData = null;
+
+          if (clientDetails) {
+            console.log("Client details from API:", clientDetails);
+            displayData = clientDetails;
+          } else {
+            console.log("Using localStorage data");
+            displayData = loggedInUser;
+          }
+
+          // Display user details
+          userCard.innerHTML = `
+            <h1>User Details</h1>
+            <div class="detail-row">
+              <span class="label">Name:</span>
+              <span class="value">${displayData.name || "N/A"}</span>
+            </div>
+            <div class="detail-row">
+              <span class="label">Surname:</span>
+              <span class="value">${displayData.surname || "N/A"}</span>
+            </div>
+            <div class="detail-row">
+              <span class="label">Email:</span>
+              <span class="value">${displayData.email || "N/A"}</span>
+            </div>
+            <div class="detail-row">
+              <span class="label">Username:</span>
+              <span class="value">${displayData.username || "N/A"}</span>
+            </div>
+          `;
+
+        } catch (error) {
+          console.error("Error loading user details:", error);
+          
+          // Fallback to localStorage data
+          userCard.innerHTML = `
+            <h1>User Details</h1>
+            <div class="detail-row">
+              <span class="label">Name:</span>
+              <span class="value">${loggedInUser.name || "N/A"}</span>
+            </div>
+            <div class="detail-row">
+              <span class="label">Surname:</span>
+              <span class="value">${loggedInUser.surname || "N/A"}</span>
+            </div>
+            <div class="detail-row">
+              <span class="label">Email:</span>
+              <span class="value">${loggedInUser.email || "N/A"}</span>
+            </div>
+            <div class="detail-row">
+              <span class="label">Username:</span>
+              <span class="value">${loggedInUser.username || "N/A"}</span>
+            </div>
+          `;
+        }
       });
     </script>
   </body>

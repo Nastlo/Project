@@ -373,18 +373,6 @@
         </div>
 
         <div class="form-group">
-          <label>Rating *</label>
-          <select id="rating" required>
-            <option value="">Select rating</option>
-            <option value="1">⭐ 1 Star</option>
-            <option value="2">⭐⭐ 2 Stars</option>
-            <option value="3">⭐⭐⭐ 3 Stars</option>
-            <option value="4">⭐⭐⭐⭐ 4 Stars</option>
-            <option value="5">⭐⭐⭐⭐⭐ 5 Stars</option>
-          </select>
-        </div>
-
-        <div class="form-group">
           <label>Image URL *</label>
           <input
             type="url"
@@ -464,52 +452,77 @@
 
     <script src="auth.js"></script>
     <script>
-      function previewImage() {
-        const url = document.getElementById("imageURL").value;
-        const img = document.getElementById("imagePreview");
 
-        if (url) {
-          img.src = url;
-          img.style.display = "block";
-          img.onerror = function () {
-            this.src =
-              "https://via.placeholder.com/200x200/e8f4f8/333333?text=Invalid+URL";
-          };
-        } else {
-          img.style.display = "none";
-        }
-      }
+async function loadCategories() {
+  const categorySelect = document.getElementById("category");
 
-      function resetPreview() {
-        const img = document.getElementById("imagePreview");
-        img.style.display = "none";
-        img.src = "";
-      }
+  // Sabit kategoriler
+  categorySelect.innerHTML = `
+    <option value="">Select category</option>
+    <option value="1">Clothing</option>
+    <option value="2">Footwear</option>
+    <option value="3">Accessories</option>
+    <option value="4">Tablets</option>
+  `;
+}
 
-      document
-        .getElementById("productForm")
-        .addEventListener("submit", function (e) {
-          e.preventDefault();
+function previewImage() {
+  const url = document.getElementById("imageURL").value;
+  const img = document.getElementById("imagePreview");
 
-          const product = {
-            brand: document.getElementById("brand").value,
-            model: document.getElementById("model").value,
-            category: document.getElementById("category").value,
-            description: document.getElementById("description").value,
-            price: parseFloat(document.getElementById("price").value),
-            rating: parseInt(document.getElementById("rating").value),
-            imageURL: document.getElementById("imageURL").value,
-            averageRating: parseInt(document.getElementById("rating").value),
-            id: Date.now(),
-          };
+  if (url) {
+    img.src = url;
+    img.style.display = "block";
+    img.onerror = function () {
+      this.src =
+        "https://via.placeholder.com/200x200/e8f4f8/333333?text=Invalid+URL";
+    };
+  } else {
+    img.style.display = "none";
+  }
+}
 
-          let products = JSON.parse(localStorage.getItem("products")) || [];
-          products.push(product);
-          localStorage.setItem("products", JSON.stringify(products));
+function resetPreview() {
+  const img = document.getElementById("imagePreview");
+  img.style.display = "none";
+  img.src = "";
+}
 
-          alert("Product saved successfully! Redirecting to products page...");
-          window.location.href = "userproducts.html";
-        });
+document
+  .getElementById("productForm")
+  .addEventListener("submit", async function (e) {
+    e.preventDefault();
+
+    if (!checkLogin()) return;
+
+    const submitBtn = e.target.querySelector('button[type="submit"]');
+    const originalText = submitBtn.textContent;
+    submitBtn.disabled = true;
+    submitBtn.textContent = "Creating...";
+
+    const productData = {
+      brand: document.getElementById("brand").value,
+      model: document.getElementById("model").value,
+      categoryId: parseInt(document.getElementById("category").value),
+      description: document.getElementById("description").value,
+      price: parseFloat(document.getElementById("price").value),
+      imageUrl: document.getElementById("imageURL").value,
+    };
+
+    const result = await createProduct(productData);
+
+    submitBtn.disabled = false;
+    submitBtn.textContent = originalText;
+
+    if (result.success) {
+      alert("Product created successfully!");
+      window.location.href = "userproducts.html";
+    } else {
+      alert(result.message || "Failed to create product");
+    }
+  });
+
+window.addEventListener("DOMContentLoaded", loadCategories);
     </script>
   </body>
 </html>

@@ -400,7 +400,11 @@
 
         <div class="buttons">
           <button type="submit" class="update-btn">💾 Update Product</button>
-          <button type="button" class="cancel-btn" onclick="window.location.href='userproducts.html'">
+          <button
+            type="button"
+            class="cancel-btn"
+            onclick="window.location.href='userproducts.html'"
+          >
             🔙 Cancel
           </button>
         </div>
@@ -464,83 +468,107 @@
 
     <script src="auth.js"></script>
     <script>
-      let productIndex = null;
 
-      function previewImage() {
-        const url = document.getElementById("imageURL").value;
-        const img = document.getElementById("imagePreview");
+let productId = null;
 
-        if (url) {
-          img.src = url;
-          img.style.display = "block";
-          img.onerror = function () {
-            this.src = "https://via.placeholder.com/200x200/e8f4f8/333333?text=Invalid+URL";
-          };
-        } else {
-          img.style.display = "none";
-        }
-      }
+function previewImage() {
+  const url = document.getElementById("imageURL").value;
+  const img = document.getElementById("imagePreview");
 
-      function loadProduct() {
-        const urlParams = new URLSearchParams(window.location.search);
-        productIndex = urlParams.get('index');
+  if (url) {
+    img.src = url;
+    img.style.display = "block";
+    img.onerror = function () {
+      this.src = "https://via.placeholder.com/200x200/e8f4f8/333333?text=Invalid+URL";
+    };
+  } else {
+    img.style.display = "none";
+  }
+}
 
-        if (productIndex === null) {
-          alert('Product not found!');
-          window.location.href = 'userproducts.html';
-          return;
-        }
+async function loadCategories() {
+  const categorySelect = document.getElementById("category");
 
-        const products = JSON.parse(localStorage.getItem("products")) || [];
-        const product = products[productIndex];
+  // Sabit kategoriler
+  categorySelect.innerHTML = `
+    <option value="">Select category</option>
+    <option value="1">Clothing</option>
+    <option value="2">Footwear</option>
+    <option value="3">Accessories</option>
+    <option value="4">Tablets</option>
+  `;
+}
 
-        if (!product) {
-          alert('Product not found!');
-          window.location.href = 'userproducts.html';
-          return;
-        }
+async function loadProduct() {
+  if (!checkLogin()) return;
 
-        document.getElementById("brand").value = product.brand;
-        document.getElementById("model").value = product.model;
-        document.getElementById("category").value = product.category;
-        document.getElementById("description").value = product.description || '';
-        document.getElementById("price").value = product.price;
-        document.getElementById("rating").value = product.rating;
-        document.getElementById("imageURL").value = product.imageURL;
+  const urlParams = new URLSearchParams(window.location.search);
+  productId = urlParams.get('id');
 
-        previewImage();
-      }
+  if (!productId) {
+    alert('Product not found!');
+    window.location.href = 'userproducts.html';
+    return;
+  }
 
-      document.getElementById("productForm").addEventListener("submit", function (e) {
-        e.preventDefault();
+  // Load categories first
+  await loadCategories();
 
-        if (productIndex === null) {
-          alert('Error: Product index not found!');
-          return;
-        }
+  // Then load product
+  const product = await fetchProductById(productId);
 
-        const products = JSON.parse(localStorage.getItem("products")) || [];
+  if (!product) {
+    alert('Product not found!');
+    window.location.href = 'userproducts.html';
+    return;
+  }
 
-        const updatedProduct = {
-          brand: document.getElementById("brand").value,
-          model: document.getElementById("model").value,
-          category: document.getElementById("category").value,
-          description: document.getElementById("description").value,
-          price: parseFloat(document.getElementById("price").value),
-          rating: parseInt(document.getElementById("rating").value),
-          imageURL: document.getElementById("imageURL").value,
-          averageRating: parseInt(document.getElementById("rating").value),
-          id: products[productIndex].id 
-        };
+  document.getElementById("brand").value = product.brand;
+  document.getElementById("model").value = product.model;
+  document.getElementById("category").value = product.categoryId || product.category?.id;
+  document.getElementById("description").value = product.description || '';
+  document.getElementById("price").value = product.price;
+  document.getElementById("imageURL").value = product.imageUrl;
 
-        products[productIndex] = updatedProduct;
-        localStorage.setItem("products", JSON.stringify(products));
+  previewImage();
+}
 
-        alert("Product updated successfully!");
-        window.location.href = "userproducts.html";
-      });
+document.getElementById("productForm").addEventListener("submit", async function (e) {
+  e.preventDefault();
 
-      window.addEventListener('DOMContentLoaded', loadProduct);
+  if (!productId) {
+    alert('Error: Product ID not found!');
+    return;
+  }
+
+  const submitBtn = e.target.querySelector('button[type="submit"]');
+  const originalText = submitBtn.textContent;
+  submitBtn.disabled = true;
+  submitBtn.textContent = "Updating...";
+
+  const productData = {
+    brand: document.getElementById("brand").value,
+    model: document.getElementById("model").value,
+    categoryId: parseInt(document.getElementById("category").value),
+    description: document.getElementById("description").value,
+    price: parseFloat(document.getElementById("price").value),
+    imageUrl: document.getElementById("imageURL").value,
+  };
+
+  const result = await updateProduct(productId, productData);
+
+  submitBtn.disabled = false;
+  submitBtn.textContent = originalText;
+
+  if (result.success) {
+    alert("Product updated successfully!");
+    window.location.href = "userproducts.html";
+  } else {
+    alert(result.message || "Failed to update product");
+  }
+});
+
+window.addEventListener('DOMContentLoaded', loadProduct);
     </script>
   </body>
 </html>

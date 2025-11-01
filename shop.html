@@ -338,7 +338,7 @@
         top: 0;
         width: 100%;
         height: 100%;
-        background-color: rgba(0,0,0,0.5);
+        background-color: rgba(0, 0, 0, 0.5);
       }
 
       .rating-modal-content {
@@ -550,37 +550,36 @@
       <div class="container">
         <div class="main-content">
           <aside class="sidebar">
-            <div class="category-section">
-              <h3>Category</h3>
-              <ul class="category-list">
-                <li data-category="all" class="active">All</li>
-                <li data-category="clothing">Clothing</li>
-                <li data-category="footwear">Footwear</li>
-                <li data-category="accessories">Accessories</li>
-                <li data-category="mobile">Mobile</li>
-                <li data-category="electronics">Electronics</li>
-              </ul>
-            </div>
+  <div class="category-section">
+    <h3>Category</h3>
+    <ul class="category-list">
+      <li data-category="all" class="active">All</li>
+      <li data-category="1">Clothing</li>
+      <li data-category="2">Footwear</li>
+      <li data-category="3">Accessories</li>
+      <li data-category="4">Tablets</li>
+    </ul>
+  </div>
 
-            <div class="rate-section">
-              <h3>Rating</h3>
-              <div class="rate-option" data-rating="5">
-                <span class="stars">★★★★★</span>
-              </div>
-              <div class="rate-option" data-rating="4">
-                <span class="stars">★★★★</span>
-              </div>
-              <div class="rate-option" data-rating="3">
-                <span class="stars">★★★</span>
-              </div>
-              <div class="rate-option" data-rating="2">
-                <span class="stars">★★</span>
-              </div>
-              <div class="rate-option" data-rating="1">
-                <span class="stars">★</span>
-              </div>
-            </div>
-          </aside>
+  <div class="rate-section">
+    <h3>Rating</h3>
+    <div class="rate-option" data-rating="5">
+      <span class="stars">★★★★★</span>
+    </div>
+    <div class="rate-option" data-rating="4">
+      <span class="stars">★★★★</span>
+    </div>
+    <div class="rate-option" data-rating="3">
+      <span class="stars">★★★</span>
+    </div>
+    <div class="rate-option" data-rating="2">
+      <span class="stars">★★</span>
+    </div>
+    <div class="rate-option" data-rating="1">
+      <span class="stars">★</span>
+    </div>
+  </div>
+</aside>
 
           <div class="products-grid" id="productsGrid"></div>
         </div>
@@ -600,8 +599,12 @@
           <span data-rating="5">★</span>
         </div>
         <div class="rating-modal-btns">
-          <button class="rating-cancel-btn" onclick="closeRatingModal()">Cancel</button>
-          <button class="rating-submit-btn" onclick="submitRating()">Submit</button>
+          <button class="rating-cancel-btn" onclick="closeRatingModal()">
+            Cancel
+          </button>
+          <button class="rating-submit-btn" onclick="submitRating()">
+            Submit
+          </button>
         </div>
       </div>
     </div>
@@ -662,456 +665,335 @@
     </footer>
 
     <script src="auth.js"></script>
-    <script>
-      // API_BASE_URL zaten auth.js'de tanımlı, tekrar tanımlamaya gerek yok
-      let allProducts = [];
-      let currentCategory = "all";
-      let currentRating = 0;
-      let selectedProductForRating = null;
-      let currentRatingValue = 0;
+<script>
 
-      // Kendi clothing ürünlerimiz
-      const customClothingProducts = [
-        {
-          id: 'cloth_001',
-          brand: 'Zara',
-          model: 'Classic Denim Jacket',
-          category: 'clothing',
-          price: 89.99,
-          imageUrl: 'https://images.unsplash.com/photo-1551028719-00167b16eac5?w=400',
-          description: 'Stylish blue denim jacket',
-          averageRating: 0,
-          ratingCount: 0,
-          isCustom: true
-        },
-        {
-          id: 'cloth_002',
-          brand: 'H&M',
-          model: 'Cotton T-Shirt',
-          category: 'clothing',
-          price: 24.99,
-          imageUrl: 'https://images.unsplash.com/photo-1521572163474-6864f9cf17ab?w=400',
-          description: 'Comfortable cotton t-shirt',
-          averageRating: 0,
-          ratingCount: 0,
-          isCustom: true
-        },
-        {
-          id: 'cloth_003',
-          brand: 'Nike',
-          model: 'Sports Hoodie',
-          category: 'clothing',
-          price: 65.00,
-          imageUrl: 'https://images.unsplash.com/photo-1556821840-3a63f95609a7?w=400',
-          description: 'Athletic performance hoodie',
-          averageRating: 0,
-          ratingCount: 0,
-          isCustom: true
-        },
-        {
-          id: 'cloth_004',
-          brand: 'Levi\'s',
-          model: 'Slim Fit Jeans',
-          category: 'clothing',
-          price: 79.99,
-          imageUrl: 'https://images.unsplash.com/photo-1542272604-787c3835535d?w=400',
-          description: 'Classic slim fit denim jeans',
-          averageRating: 0,
-          ratingCount: 0,
-          isCustom: true
-        },
-        {
-          id: 'cloth_005',
-          brand: 'Adidas',
-          model: 'Track Pants',
-          category: 'clothing',
-          price: 55.00,
-          imageUrl: 'https://images.unsplash.com/photo-1506629082955-511b1aa562c8?w=400',
-          description: 'Comfortable athletic pants',
-          averageRating: 0,
-          ratingCount: 0,
-          isCustom: true
-        }
-      ];
+let allProducts = [];
+let currentCategory = "all";
+let currentRating = 0;
+let selectedProductForRating = null;
+let currentRatingValue = 0;
+let categories = [];
 
-      function openRatingModal(product) {
-        if (!checkLogin()) return;
-        
-        selectedProductForRating = product;
-        currentRatingValue = 0;
-        
-        document.getElementById('ratingProductName').textContent = `${product.brand} ${product.model}`;
-        document.getElementById('ratingModal').style.display = 'block';
-        
-        document.querySelectorAll('#modalStars span').forEach(star => {
-          star.classList.remove('active');
-        });
+function openRatingModal(product) {
+  if (!checkLogin()) return;
+
+  selectedProductForRating = product;
+  currentRatingValue = 0;
+
+  document.getElementById("ratingProductName").textContent = `${product.brand} ${product.model}`;
+  document.getElementById("ratingModal").style.display = "block";
+
+  document.querySelectorAll("#modalStars span").forEach((star) => {
+    star.classList.remove("active");
+  });
+}
+
+function closeRatingModal() {
+  document.getElementById("ratingModal").style.display = "none";
+  selectedProductForRating = null;
+  currentRatingValue = 0;
+}
+
+async function submitRating() {
+  if (currentRatingValue === 0) {
+    alert("Please select a rating!");
+    return;
+  }
+
+  if (!selectedProductForRating) return;
+
+  const result = await submitProductRating(
+    selectedProductForRating.id,
+    currentRatingValue
+  );
+
+  if (result.success) {
+    alert(`You rated this product ${currentRatingValue} stars!`);
+    closeRatingModal();
+
+    const ratings = await fetchProductRatings(selectedProductForRating.id);
+
+    const productIndex = allProducts.findIndex(
+      (p) => p.id === selectedProductForRating.id
+    );
+    if (productIndex !== -1) {
+      allProducts[productIndex].averageRating = ratings.averageRating;
+      allProducts[productIndex].totalRatings = ratings.totalRatings;
+      allProducts[productIndex].hasApiRating = true;
+    }
+
+    await loadProducts();
+  } else {
+    alert(result.message || "Failed to submit rating");
+  }
+}
+
+document.getElementById("modalStars")?.addEventListener("click", function (e) {
+  if (e.target.tagName === "SPAN") {
+    currentRatingValue = parseInt(e.target.dataset.rating);
+    document.querySelectorAll("#modalStars span").forEach((star, index) => {
+      if (index < currentRatingValue) {
+        star.classList.add("active");
+      } else {
+        star.classList.remove("active");
       }
+    });
+  }
+});
 
-      function closeRatingModal() {
-        document.getElementById('ratingModal').style.display = 'none';
-        selectedProductForRating = null;
-        currentRatingValue = 0;
-      }
+async function loadCategories() {
+  categories = [
+    { id: 1, name: "Clothing" },
+    { id: 2, name: "Footwear" },
+    { id: 3, name: "Accessories" },
+    { id: 4, name: "Tablets" }
+  ];
 
-      function submitRating() {
-        if (currentRatingValue === 0) {
-          alert('Please select a rating!');
-          return;
-        }
+  const categoryList = document.querySelector(".category-list");
+  if (categoryList) {
+    categoryList.innerHTML = '<li data-category="all" class="active">All</li>';
 
-        if (!selectedProductForRating) return;
-
-        const ratings = JSON.parse(localStorage.getItem('productRatings')) || {};
-        const productKey = selectedProductForRating.isCustom 
-          ? selectedProductForRating.id 
-          : `api_${selectedProductForRating.id}`;
-
-        if (!ratings[productKey]) {
-          ratings[productKey] = {
-            ratings: [],
-            averageRating: 0
-          };
-        }
-
-        ratings[productKey].ratings.push(currentRatingValue);
-        
-        const sum = ratings[productKey].ratings.reduce((a, b) => a + b, 0);
-        ratings[productKey].averageRating = sum / ratings[productKey].ratings.length;
-
-        localStorage.setItem('productRatings', JSON.stringify(ratings));
-
-        const productIndex = allProducts.findIndex(p => {
-          if (p.isCustom && selectedProductForRating.isCustom) {
-            return p.id === selectedProductForRating.id;
-          }
-          return p.id === selectedProductForRating.id;
-        });
-
-        if (productIndex !== -1) {
-          allProducts[productIndex].averageRating = ratings[productKey].averageRating;
-          allProducts[productIndex].ratingCount = ratings[productKey].ratings.length;
-        }
-
-        alert(`You rated this product ${currentRatingValue} stars!`);
-        closeRatingModal();
-        displayProducts(allProducts);
-      }
-
-      document.getElementById('modalStars').addEventListener('click', function(e) {
-        if (e.target.tagName === 'SPAN') {
-          currentRatingValue = parseInt(e.target.dataset.rating);
-          document.querySelectorAll('#modalStars span').forEach((star, index) => {
-            if (index < currentRatingValue) {
-              star.classList.add('active');
-            } else {
-              star.classList.remove('active');
-            }
-          });
-        }
+    categories.forEach((cat) => {
+      const li = document.createElement("li");
+      li.dataset.category = cat.id;
+      li.textContent = cat.name;
+      li.addEventListener("click", function () {
+        filterCategory(cat.id);
       });
+      categoryList.appendChild(li);
+    });
+  }
+}
 
-      const categoryMap = {
-        1: "electronics",
-        4: "electronics",
-        6: "mobile",
-        8: "electronics",
-        9: "mobile",
-        10: "mobile",
-        11: "accessories",
-      };
+async function loadProducts() {
+  try {
+    const products = await fetchProducts();
 
-      async function fetchProducts() {
-        try {
-          const response = await fetch(`${API_BASE_URL}/products`);
-          if (!response.ok) throw new Error("Network response was not ok");
+    const productsWithRatings = await Promise.all(
+      products.map(async (product) => {
+        const ratings = await fetchProductRatings(product.id);
+        const apiRating = ratings.averageRating || 0;
+        const apiTotalRatings = ratings.totalRatings || 0;
+        
+        return {
+          ...product,
+          averageRating: apiRating,
+          totalRatings: apiTotalRatings,
+          hasApiRating: apiRating > 0
+        };
+      })
+    );
 
-          const apiProducts = await response.json();
+    allProducts = productsWithRatings;
+    displayProducts(allProducts);
+  } catch (error) {
+    console.error("Products could not be loaded:", error);
+    allProducts = [];
+    displayProducts(allProducts);
+  }
+}
 
-          const localProducts = JSON.parse(localStorage.getItem("products")) || [];
-          
-          const ratings = JSON.parse(localStorage.getItem('productRatings')) || {};
+function displayProducts(products) {
+  const grid = document.getElementById("productsGrid");
+  grid.innerHTML = "";
 
-          const productsWithRatings = apiProducts.map(product => {
-            const productKey = `api_${product.id}`;
-            if (ratings[productKey]) {
-              return {
-                ...product,
-                averageRating: ratings[productKey].averageRating,
-                ratingCount: ratings[productKey].ratings.length
-              };
-            }
-            return product;
-          });
+  if (products.length === 0) {
+    grid.innerHTML =
+      '<p style="grid-column: 1/-1; text-align: center; padding: 40px;">No products found.</p>';
+    return;
+  }
 
-          const clothingWithRatings = customClothingProducts.map(product => {
-            const productKey = product.id;
-            if (ratings[productKey]) {
-              return {
-                ...product,
-                averageRating: ratings[productKey].averageRating,
-                ratingCount: ratings[productKey].ratings.length
-              };
-            }
-            return product;
-          });
+  products.forEach((product) => {
+    const card = document.createElement("div");
+    card.classList.add("product-card");
 
-          allProducts = [...productsWithRatings, ...localProducts, ...clothingWithRatings];
+    let categoryName = "other";
+    if (product.categoryId) {
+      const category = categories.find((c) => c.id === product.categoryId);
+      categoryName = category ? category.id : product.categoryId;
+    }
 
-          displayProducts(allProducts);
-        } catch (error) {
-          console.error("Products could not be loaded:", error);
+    const rating = product.averageRating || 0;
+    const roundedRating = Math.round(rating);
+    const ratingCount = product.totalRatings || 0;
+    const hasApiRating = product.hasApiRating || false;
 
-          const localProducts = JSON.parse(localStorage.getItem("products")) || [];
-          const ratings = JSON.parse(localStorage.getItem('productRatings')) || {};
+    card.dataset.category = categoryName;
+    card.dataset.rating = roundedRating;
+    card.dataset.price = product.price || 0;
+    card.dataset.id = product.id;
 
-          const clothingWithRatings = customClothingProducts.map(product => {
-            const productKey = product.id;
-            if (ratings[productKey]) {
-              return {
-                ...product,
-                averageRating: ratings[productKey].averageRating,
-                ratingCount: ratings[productKey].ratings.length
-              };
-            }
-            return product;
-          });
+    const fullStars = roundedRating;
+    const emptyStars = 5 - fullStars;
+    const stars = "★".repeat(fullStars) + "☆".repeat(emptyStars);
 
-          allProducts = [...localProducts, ...clothingWithRatings];
-          displayProducts(allProducts);
-        }
-      }
+    const canRate = !hasApiRating;
+    const ratingClickHandler = canRate 
+      ? `onclick="event.stopPropagation(); openRatingModal(JSON.parse(this.dataset.product))"` 
+      : '';
+    const ratingCursor = canRate ? 'cursor: pointer;' : 'cursor: default;';
 
-      function displayProducts(products) {
-        const grid = document.getElementById("productsGrid");
-        grid.innerHTML = "";
+    const productJson = JSON.stringify(product).replace(/"/g, "&quot;");
 
-        if (products.length === 0) {
-          grid.innerHTML = '<p style="grid-column: 1/-1; text-align: center; padding: 40px;">No products found.</p>';
-          return;
-        }
+    card.innerHTML = `
+      <img src="${product.imageUrl || "https://via.placeholder.com/250"}" 
+           alt="${product.brand} ${product.model}"
+           onerror="this.src='https://via.placeholder.com/250/f5f5f5/666?text=No+Image'">
+      <div class="product-name">${product.brand} ${product.model}</div>
+      <div class="product-price">$${parseFloat(product.price).toFixed(2)}</div>
+      <div class="product-rating">
+        <span class="rating-stars" ${ratingClickHandler} data-product='${productJson}' style="${ratingCursor}">${stars}</span>
+        <span class="rating-count">(${ratingCount})</span>
+      </div>
+      <button class="add-to-cart-btn">Add to cart</button>
+    `;
 
-        products.forEach((product) => {
-          const card = document.createElement("div");
-          card.classList.add("product-card");
+    const cartBtn = card.querySelector(".add-to-cart-btn");
+    cartBtn.addEventListener("click", (e) => {
+      e.stopPropagation();
+      addToCartUI(
+        product.id,
+        `${product.brand} ${product.model}`,
+        product.price,
+        product.imageUrl
+      );
+    });
 
-          let categoryName = "other";
+    card.addEventListener("click", () => {
+      window.location.href = `ProductPage.html?id=${card.dataset.id}`;
+    });
 
-          if (product.category) {
-            categoryName = product.category.toLowerCase();
-          } else if (product.categoryId) {
-            if (categoryMap[product.categoryId]) {
-              categoryName = categoryMap[product.categoryId];
-            } else {
-              const productFullName = `${product.brand} ${product.model}`.toLowerCase();
+    grid.appendChild(card);
+  });
 
-              if (
-                productFullName.includes("phone") ||
-                productFullName.includes("mobile") ||
-                productFullName.includes("iphone") ||
-                productFullName.includes("samsung") ||
-                productFullName.includes("xiaomi") ||
-                productFullName.includes("huawei")
-              ) {
-                categoryName = "mobile";
-              } else if (
-                productFullName.includes("laptop") ||
-                productFullName.includes("computer") ||
-                productFullName.includes("monitor") ||
-                productFullName.includes("keyboard") ||
-                productFullName.includes("mouse") ||
-                productFullName.includes("tablet")
-              ) {
-                categoryName = "electronics";
-              } else if (
-                productFullName.includes("watch") ||
-                productFullName.includes("bag") ||
-                productFullName.includes("wallet") ||
-                productFullName.includes("belt") ||
-                productFullName.includes("glass") ||
-                productFullName.includes("hat")
-              ) {
-                categoryName = "accessories";
-              }
-            }
-          }
+  applyFilters();
+}
 
-          const rating = product.averageRating || 0;
-          const roundedRating = Math.round(rating);
-          const ratingCount = product.ratingCount || 0;
+function filterCategory(category) {
+  currentCategory = category;
+  applyFilters();
 
-          card.dataset.category = categoryName;
-          card.dataset.rating = roundedRating;
-          card.dataset.price = product.price || 0;
-          card.dataset.id = product.id || Date.now();
+  document.querySelectorAll(".category-list li").forEach((li) => {
+    li.classList.remove("active");
+    if (li.dataset.category == category) {
+      li.classList.add("active");
+    }
+  });
+}
 
-          const stars = "★".repeat(roundedRating) + "☆".repeat(5 - roundedRating);
+function filterRating(rating) {
+  currentRating = rating;
+  applyFilters();
 
-          card.innerHTML = `
-            <img src="${product.imageUrl || product.imageURL || "https://via.placeholder.com/250"}" 
-                 alt="${product.brand} ${product.model}"
-                 onerror="this.src='https://via.placeholder.com/250/f5f5f5/666?text=No+Image'">
-            <div class="product-name">${product.brand} ${product.model}</div>
-            <div class="product-price">${parseFloat(product.price).toFixed(2)}</div>
-            <div class="product-rating">
-              <span class="rating-stars" onclick="event.stopPropagation(); openRatingModal(${JSON.stringify(product).replace(/"/g, '&quot;')})">${stars}</span>
-              <span class="rating-count">(${ratingCount})</span>
-            </div>
-            <button class="add-to-cart-btn">Add to cart</button>
-          `;
+  document.querySelectorAll(".rate-option").forEach((opt) => {
+    opt.classList.remove("active");
+    if (parseInt(opt.dataset.rating) === rating) {
+      opt.classList.add("active");
+    }
+  });
+}
 
-          const cartBtn = card.querySelector(".add-to-cart-btn");
-          cartBtn.addEventListener("click", (e) => {
-            e.stopPropagation();
-            addToCartUI(
-              product.id,
-              `${product.brand} ${product.model}`,
-              product.price,
-              product.imageUrl || product.imageURL
-            );
-          });
+function applyFilters() {
+  const searchTerm = document.getElementById("productSearch")?.value.toLowerCase() || "";
+  const cards = document.querySelectorAll(".product-card");
 
-          card.addEventListener("click", () => {
-            window.location.href = `ProductPage.html?id=${card.dataset.id}`;
-          });
+  cards.forEach((card) => {
+    const cardCategory = card.dataset.category;
+    const cardRating = parseInt(card.dataset.rating);
+    const productName = card.querySelector(".product-name").textContent.toLowerCase();
 
-          grid.appendChild(card);
-        });
+    let showCard = true;
 
-        applyFilters();
-      }
+    if (currentCategory !== "all" && cardCategory != currentCategory) {
+      showCard = false;
+    }
 
-      function filterCategory(category) {
-        currentCategory = category;
-        applyFilters();
+    if (currentRating > 0 && cardRating < currentRating) {
+      showCard = false;
+    }
 
-        document.querySelectorAll(".category-list li").forEach((li) => {
-          li.classList.remove("active");
-          if (li.dataset.category === category) {
-            li.classList.add("active");
-          }
-        });
-      }
+    if (searchTerm && !productName.includes(searchTerm)) {
+      showCard = false;
+    }
 
-      function filterRating(rating) {
-        currentRating = rating;
-        applyFilters();
+    card.classList.toggle("hidden", !showCard);
+  });
+}
 
-        document.querySelectorAll(".rate-option").forEach((opt) => {
-          opt.classList.remove("active");
-          if (parseInt(opt.dataset.rating) === rating) {
-            opt.classList.add("active");
-          }
-        });
-      }
+function showAllProducts() {
+  currentCategory = "all";
+  currentRating = 0;
 
-      function applyFilters() {
-        const searchTerm = document.getElementById("productSearch")?.value.toLowerCase() || "";
-        const cards = document.querySelectorAll(".product-card");
+  document.getElementById("productSearch").value = "";
+  document.getElementById("sortDropdown").value = "";
 
-        cards.forEach((card) => {
-          const cardCategory = card.dataset.category;
-          const cardRating = parseInt(card.dataset.rating);
-          const productName = card.querySelector(".product-name").textContent.toLowerCase();
+  document.querySelectorAll(".product-card").forEach((card) => {
+    card.classList.remove("hidden");
+  });
 
-          let showCard = true;
+  document.querySelectorAll(".category-list li").forEach((li) => {
+    li.classList.remove("active");
+  });
+  document.querySelector(".category-list li[data-category='all']")?.classList.add("active");
 
-          if (currentCategory !== "all" && cardCategory !== currentCategory) {
-            showCard = false;
-          }
+  document.querySelectorAll(".rate-option").forEach((opt) => {
+    opt.classList.remove("active");
+  });
 
-          if (currentRating > 0 && cardRating < currentRating) {
-            showCard = false;
-          }
+  displayProducts(allProducts);
+}
 
-          if (searchTerm && !productName.includes(searchTerm)) {
-            showCard = false;
-          }
+function sortProducts() {
+  const grid = document.getElementById("productsGrid");
+  const cards = Array.from(document.querySelectorAll(".product-card"));
+  const sortValue = document.getElementById("sortDropdown").value;
 
-          card.classList.toggle("hidden", !showCard);
-        });
-      }
+  if (sortValue === "price-low") {
+    cards.sort((a, b) => parseFloat(a.dataset.price) - parseFloat(b.dataset.price));
+  } else if (sortValue === "price-high") {
+    cards.sort((a, b) => parseFloat(b.dataset.price) - parseFloat(a.dataset.price));
+  } else if (sortValue === "rating-high") {
+    cards.sort((a, b) => parseInt(b.dataset.rating) - parseInt(a.dataset.rating));
+  } else if (sortValue === "newest") {
+    cards.sort((a, b) => parseInt(b.dataset.id) - parseInt(a.dataset.id));
+  }
 
-      function showAllProducts() {
-        currentCategory = "all";
-        currentRating = 0;
+  cards.forEach((card) => grid.appendChild(card));
+}
 
-        document.getElementById("productSearch").value = "";
-        document.getElementById("sortDropdown").value = "";
+window.onclick = function (event) {
+  const modal = document.getElementById("ratingModal");
+  if (event.target === modal) {
+    closeRatingModal();
+  }
+};
 
-        document.querySelectorAll(".product-card").forEach((card) => {
-          card.classList.remove("hidden");
-        });
+document.addEventListener("DOMContentLoaded", async function () {
+  await loadCategories();
+  await loadProducts();
 
-        document.querySelectorAll(".category-list li").forEach((li) => {
-          li.classList.remove("active");
-        });
-        document.querySelector(".category-list li").classList.add("active");
+  const searchInput = document.getElementById("productSearch");
+  if (searchInput) {
+    searchInput.addEventListener("input", applyFilters);
+  }
 
-        document.querySelectorAll(".rate-option").forEach((opt) => {
-          opt.classList.remove("active");
-        });
+  document.querySelectorAll(".rate-option").forEach((opt) => {
+    opt.addEventListener("click", function () {
+      const rating = parseInt(this.dataset.rating);
+      filterRating(rating);
+    });
+  });
 
-        displayProducts(allProducts);
-      }
+  const sortDropdown = document.getElementById("sortDropdown");
+  if (sortDropdown) {
+    sortDropdown.addEventListener("change", sortProducts);
+  }
 
-      function sortProducts() {
-        const grid = document.getElementById("productsGrid");
-        const cards = Array.from(document.querySelectorAll(".product-card"));
-        const sortValue = document.getElementById("sortDropdown").value;
-
-        if (sortValue === "price-low") {
-          cards.sort((a, b) => parseFloat(a.dataset.price) - parseFloat(b.dataset.price));
-        } else if (sortValue === "price-high") {
-          cards.sort((a, b) => parseFloat(b.dataset.price) - parseFloat(a.dataset.price));
-        } else if (sortValue === "rating-high") {
-          cards.sort((a, b) => parseInt(b.dataset.rating) - parseInt(a.dataset.rating));
-        } else if (sortValue === "newest") {
-          cards.sort((a, b) => parseInt(b.dataset.id) - parseInt(a.dataset.id));
-        }
-
-        cards.forEach((card) => grid.appendChild(card));
-      }
-
-      window.onclick = function(event) {
-        const modal = document.getElementById('ratingModal');
-        if (event.target === modal) {
-          closeRatingModal();
-        }
-      }
-
-      document.addEventListener("DOMContentLoaded", function () {
-        fetchProducts();
-
-        const searchInput = document.getElementById("productSearch");
-        if (searchInput) {
-          searchInput.addEventListener("input", applyFilters);
-        }
-
-        document.querySelectorAll('.category-list li').forEach(li => {
-          li.addEventListener('click', function() {
-            const category = this.dataset.category;
-            filterCategory(category);
-          });
-        });
-
-        document.querySelectorAll('.rate-option').forEach(opt => {
-          opt.addEventListener('click', function() {
-            const rating = parseInt(this.dataset.rating);
-            filterRating(rating);
-          });
-        });
-
-        const sortDropdown = document.getElementById("sortDropdown");
-        if (sortDropdown) {
-          sortDropdown.addEventListener("change", sortProducts);
-        }
-
-        const allProductsBtn = document.getElementById("allProductsBtn");
-        if (allProductsBtn) {
-          allProductsBtn.addEventListener("click", showAllProducts);
-        }
-      });
-    </script>
+  const allProductsBtn = document.getElementById("allProductsBtn");
+  if (allProductsBtn) {
+    allProductsBtn.addEventListener("click", showAllProducts);
+  }
+});
+</script>
   </body>
 </html>

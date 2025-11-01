@@ -364,8 +364,7 @@
               <th>Actions</th>
             </tr>
           </thead>
-          <tbody id="productTableBody">
-          </tbody>
+          <tbody id="productTableBody"></tbody>
         </table>
       </div>
     </div>
@@ -427,61 +426,97 @@
 
     <script src="auth.js"></script>
     <script>
-      function loadProducts() {
+      async function loadProducts() {
         const tbody = document.getElementById("productTableBody");
-        const products = JSON.parse(localStorage.getItem("products")) || [];
 
-        tbody.innerHTML = "";
+        if (!checkLogin()) return;
 
-        if (products.length === 0) {
+        tbody.innerHTML =
+          '<tr><td colspan="8" style="text-align:center; padding:40px;">Loading...</td></tr>';
+
+        try {
+          const products = await fetchMyProducts();
+
+          tbody.innerHTML = "";
+
+          if (products.length === 0) {
+            tbody.innerHTML = `
+        <tr>
+          <td colspan="8" class="empty-state">
+            <i class="fas fa-box-open"></i>
+            <h3>No products yet</h3>
+            <p>Create your first product to get started!</p>
+          </td>
+        </tr>
+      `;
+            return;
+          }
+
+          for (const product of products) {
+            const ratings = await fetchProductRatings(product.id);
+            const avgRating = ratings.averageRating || 0;
+            const totalRatings = ratings.totalRatings || 0;
+
+            const row = document.createElement("tr");
+            row.setAttribute("data-product-id", product.id);
+
+            row.innerHTML = `
+        <td>${product.id}</td>
+        <td>${product.brand}</td>
+        <td>${product.model}</td>
+        <td>${product.category ? product.category.name : "N/A"}</td>
+        <td>
+          <img src="${
+            product.imageUrl || "https://via.placeholder.com/120x80"
+          }" 
+               alt="${product.brand}" 
+               class="product-image" 
+               onerror="this.src='https://via.placeholder.com/120x80/e8f4f8/333333?text=No+Image'">
+        </td>
+        <td>$${product.price.toFixed(2)}</td>
+        <td>${
+          avgRating > 0 ? avgRating.toFixed(1) : "No rating"
+        }/5 (${totalRatings})</td>
+        <td>
+          <div class="actions">
+            <button class="btn-edit" onclick="editProduct(${
+              product.id
+            })">Edit</button>
+            <button class="btn-delete" onclick="deleteProductById(${
+              product.id
+            }, '${product.brand} ${product.model}')">Delete</button>
+          </div>
+        </td>
+      `;
+            tbody.appendChild(row);
+          }
+        } catch (error) {
+          console.error("Failed to load products:", error);
           tbody.innerHTML = `
-            <tr>
-              <td colspan="8" class="empty-state">
-                <i class="fas fa-box-open"></i>
-                <h3>No products yet</h3>
-                <p>Create your first product to get started!</p>
-              </td>
-            </tr>
-          `;
-          return;
+      <tr>
+        <td colspan="8" style="text-align:center; padding:40px; color:#e74c3c;">
+          <i class="fas fa-exclamation-triangle"></i>
+          <p>Failed to load products. Please try again.</p>
+        </td>
+      </tr>
+    `;
         }
-
-        products.forEach((product, index) => {
-          const row = document.createElement("tr");
-          row.innerHTML = `
-            <td>${index + 1}</td>
-            <td>${product.brand}</td>
-            <td>${product.model}</td>
-            <td>${product.category}</td>
-            <td>
-              <img src="${product.imageURL}" alt="${product.brand}" class="product-image" onerror="this.src='https://via.placeholder.com/120x80/e8f4f8/333333?text=No+Image'">
-            </td>
-            <td>${product.price}</td>
-            <td>${product.rating}/5</td>
-            <td>
-              <div class="actions">
-                <button class="btn-edit" onclick="editProduct(${index})">Edit</button>
-                <button class="btn-delete" onclick="deleteProduct(${index})">Delete</button>
-              </div>
-            </td>
-          `;
-          tbody.appendChild(row);
-        });
       }
 
-      function editProduct(index) {
-        window.location.href = `editproduct.html?index=${index}`;
+      async function editProduct(productId) {
+        window.location.href = `editproduct.html?id=${productId}`;
       }
 
-      function deleteProduct(index) {
-        const products = JSON.parse(localStorage.getItem("products")) || [];
-        const product = products[index];
+      async function deleteProductById(productId, productName) {
+        if (confirm(`Are you sure you want to delete ${productName}?`)) {
+          const result = await deleteProduct(productId);
 
-        if (confirm(`Are you sure you want to delete ${product.brand} ${product.model}?`)) {
-          products.splice(index, 1);
-          localStorage.setItem("products", JSON.stringify(products));
-          showNotification("Product deleted successfully!");
-          loadProducts();
+          if (result.success) {
+            showNotification("Product deleted successfully!");
+            loadProducts();
+          } else {
+            alert(result.message || "Failed to delete product");
+          }
         }
       }
 
@@ -497,15 +532,17 @@
         }, 3000);
       }
 
-      document.querySelector(".search-bar").addEventListener("input", function (e) {
-        const searchTerm = e.target.value.toLowerCase();
-        const rows = document.querySelectorAll("#productTableBody tr");
+      document
+        .querySelector(".search-bar")
+        .addEventListener("input", function (e) {
+          const searchTerm = e.target.value.toLowerCase();
+          const rows = document.querySelectorAll("#productTableBody tr");
 
-        rows.forEach((row) => {
-          const text = row.textContent.toLowerCase();
-          row.style.display = text.includes(searchTerm) ? "" : "none";
+          rows.forEach((row) => {
+            const text = row.textContent.toLowerCase();
+            row.style.display = text.includes(searchTerm) ? "" : "none";
+          });
         });
-      });
 
       window.addEventListener("DOMContentLoaded", loadProducts);
     </script>

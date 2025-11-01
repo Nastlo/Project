@@ -1,20 +1,28 @@
-const API_BASE_URL = 'http://195.26.245.5:9505/api';
+const API_BASE_URL = "http://195.26.245.5:9505/api";
+
+// ============================================
+// AUTH TOKEN MANAGEMENT
+// ============================================
+
+function getAuthToken() {
+  return localStorage.getItem("authToken");
+}
+
+function setAuthToken(token) {
+  localStorage.setItem("authToken", token);
+}
+
+function removeAuthToken() {
+  localStorage.removeItem("authToken");
+}
+
+// ============================================
+// UI UPDATES
+// ============================================
 
 function initializeAuth() {
   updateUserUI();
   loadCartCount();
-}
-
-function getAuthToken() {
-  return localStorage.getItem('authToken');
-}
-
-function setAuthToken(token) {
-  localStorage.setItem('authToken', token);
-}
-
-function removeAuthToken() {
-  localStorage.removeItem('authToken');
 }
 
 function updateUserUI() {
@@ -23,8 +31,9 @@ function updateUserUI() {
   const usernameText = document.querySelector(".username-text");
   const signupBtn = document.querySelector(".signup-btn");
 
-  if (loggedInUser && userIcon) {
-    usernameText.textContent = loggedInUser.username;
+  if (loggedInUser && userIcon && usernameText) {
+    // Username'i göster
+    usernameText.textContent = loggedInUser.username || loggedInUser.name || "User";
     userIcon.href = "account.html";
     userIcon.style.display = "flex";
 
@@ -63,11 +72,14 @@ function checkLogin() {
   return true;
 }
 
+// ============================================
+// CART MANAGEMENT
+// ============================================
+
 function addToCartUI(productId, productName, price, imageUrl) {
   if (!checkLogin()) return;
 
   let cart = JSON.parse(localStorage.getItem("cart")) || [];
-
   const existingItem = cart.find((item) => item.id === productId);
 
   if (existingItem) {
@@ -120,46 +132,53 @@ function clearCart() {
   loadCartCount();
 }
 
+// ============================================
+// AUTH API FUNCTIONS
+// ============================================
+
 async function registerUser(name, surname, email, username, password) {
   try {
-    const response = await fetch(`${API_BASE_URL}/auth/register`, {
-      method: 'POST',
+    const response = await fetch(`${API_BASE_URL}/clients`, {
+      method: "POST",
       headers: {
-        'Content-Type': 'application/json'
+        "Content-Type": "application/json",
       },
       body: JSON.stringify({
         name: name,
         surname: surname,
         email: email,
         username: username,
-        password: password
-      })
+        password: password,
+      }),
     });
 
     const data = await response.json();
 
     if (!response.ok) {
-      return { success: false, message: data.message || "Registration failed!" };
+      return {
+        success: false,
+        message: data.message || "Registration failed!",
+      };
     }
 
     return { success: true, message: "Registration successful!" };
   } catch (error) {
-    console.error('Register error:', error);
+    console.error("Register error:", error);
     return { success: false, message: "Network error. Please try again." };
   }
 }
 
 async function loginUser(username, password) {
   try {
-    const response = await fetch(`${API_BASE_URL}/auth/login`, {
-      method: 'POST',
+    const response = await fetch(`${API_BASE_URL}/auth`, {
+      method: "POST",
       headers: {
-        'Content-Type': 'application/json'
+        "Content-Type": "application/json",
       },
       body: JSON.stringify({
         username: username,
-        password: password
-      })
+        password: password,
+      }),
     });
 
     const data = await response.json();
@@ -177,16 +196,309 @@ async function loginUser(username, password) {
       name: data.name,
       surname: data.surname,
       email: data.email,
-      username: data.username
+      username: data.username,
     };
-    
-    localStorage.setItem('loggedInUser', JSON.stringify(userInfo));
+
+    localStorage.setItem("loggedInUser", JSON.stringify(userInfo));
 
     return { success: true, message: "Login successful!" };
   } catch (error) {
-    console.error('Login error:', error);
+    console.error("Login error:", error);
     return { success: false, message: "Network error. Please try again." };
   }
 }
+
+// ============================================
+// PRODUCT API FUNCTIONS
+// ============================================
+
+async function fetchProducts(filters = {}) {
+  try {
+    let url = `${API_BASE_URL}/products`;
+    const params = new URLSearchParams();
+
+    if (filters.category) params.append("category", filters.category);
+    if (filters.minRating) params.append("minRating", filters.minRating);
+    if (filters.search) params.append("search", filters.search);
+
+    if (params.toString()) {
+      url += `/filter?${params.toString()}`;
+    }
+
+    const token = getAuthToken();
+    const headers = {
+      "Content-Type": "application/json",
+    };
+
+    if (token) {
+      headers["Authorization"] = `Bearer ${token}`;
+    }
+
+    const response = await fetch(url, { headers });
+
+    if (!response.ok) throw new Error("Failed to fetch products");
+
+    return await response.json();
+  } catch (error) {
+    console.error("Fetch products error:", error);
+    return [];
+  }
+}
+
+async function fetchProductById(productId) {
+  try {
+    const token = getAuthToken();
+    const headers = {
+      "Content-Type": "application/json",
+    };
+
+    if (token) {
+      headers["Authorization"] = `Bearer ${token}`;
+    }
+
+    const response = await fetch(`${API_BASE_URL}/products/${productId}`, {
+      headers: headers,
+    });
+
+    if (!response.ok) throw new Error("Product not found");
+
+    return await response.json();
+  } catch (error) {
+    console.error("Fetch product error:", error);
+    return null;
+  }
+}
+
+async function createProduct(productData) {
+  try {
+    const token = getAuthToken();
+    if (!token) {
+      return { success: false, message: "Please login first" };
+    }
+
+    const response = await fetch(`${API_BASE_URL}/products`, {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+        Authorization: `Bearer ${token}`,
+      },
+      body: JSON.stringify(productData),
+    });
+
+    const data = await response.json();
+
+    if (!response.ok) {
+      return {
+        success: false,
+        message: data.message || "Failed to create product",
+      };
+    }
+
+    return { success: true, data: data };
+  } catch (error) {
+    console.error("Create product error:", error);
+    return { success: false, message: "Network error" };
+  }
+}
+
+async function updateProduct(productId, productData) {
+  try {
+    const token = getAuthToken();
+    if (!token) {
+      return { success: false, message: "Please login first" };
+    }
+
+    const response = await fetch(`${API_BASE_URL}/products/${productId}`, {
+      method: "PUT",
+      headers: {
+        "Content-Type": "application/json",
+        Authorization: `Bearer ${token}`,
+      },
+      body: JSON.stringify(productData),
+    });
+
+    const data = await response.json();
+
+    if (!response.ok) {
+      return {
+        success: false,
+        message: data.message || "Failed to update product",
+      };
+    }
+
+    return { success: true, data: data };
+  } catch (error) {
+    console.error("Update product error:", error);
+    return { success: false, message: "Network error" };
+  }
+}
+
+async function deleteProduct(productId) {
+  try {
+    const token = getAuthToken();
+    if (!token) {
+      return { success: false, message: "Please login first" };
+    }
+
+    const response = await fetch(
+      `${API_BASE_URL}/products/delete/${productId}`,
+      {
+        method: "DELETE",
+        headers: {
+          Authorization: `Bearer ${token}`,
+        },
+      }
+    );
+
+    if (!response.ok) {
+      return { success: false, message: "Failed to delete product" };
+    }
+
+    return { success: true };
+  } catch (error) {
+    console.error("Delete product error:", error);
+    return { success: false, message: "Network error" };
+  }
+}
+
+async function fetchMyProducts() {
+  try {
+    const token = getAuthToken();
+    if (!token) {
+      return [];
+    }
+
+    const response = await fetch(`${API_BASE_URL}/products/myProducts`, {
+      headers: {
+        Authorization: `Bearer ${token}`,
+      },
+    });
+
+    if (!response.ok) throw new Error("Failed to fetch my products");
+
+    return await response.json();
+  } catch (error) {
+    console.error("Fetch my products error:", error);
+    return [];
+  }
+}
+
+// ============================================
+// RATING API FUNCTIONS
+// ============================================
+
+async function submitProductRating(productId, rating) {
+  try {
+    const token = getAuthToken();
+    if (!token) {
+      return { success: false, message: "Please login first" };
+    }
+
+    const response = await fetch(`${API_BASE_URL}/ratings`, {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+        Authorization: `Bearer ${token}`,
+      },
+      body: JSON.stringify({
+        productId: productId,
+        rating: rating,
+      }),
+    });
+
+    const data = await response.json();
+
+    if (!response.ok) {
+      return {
+        success: false,
+        message: data.message || "Failed to submit rating",
+      };
+    }
+
+    return { success: true, data: data };
+  } catch (error) {
+    console.error("Submit rating error:", error);
+    return { success: false, message: "Network error" };
+  }
+}
+
+async function fetchProductRatings(productId) {
+  try {
+    const token = getAuthToken();
+    const headers = {
+      "Content-Type": "application/json",
+    };
+
+    if (token) {
+      headers["Authorization"] = `Bearer ${token}`;
+    }
+
+    const response = await fetch(`${API_BASE_URL}/ratings/${productId}`, {
+      headers: headers,
+    });
+
+    if (!response.ok) throw new Error("Failed to fetch ratings");
+
+    return await response.json();
+  } catch (error) {
+    console.error("Fetch ratings error:", error);
+    return { averageRating: 0, totalRatings: 0 };
+  }
+}
+
+// ============================================
+// CATEGORY API FUNCTION
+// ============================================
+
+async function fetchCategories() {
+  try {
+    const token = getAuthToken();
+    const headers = {
+      "Content-Type": "application/json",
+    };
+
+    if (token) {
+      headers["Authorization"] = `Bearer ${token}`;
+    }
+
+    const response = await fetch(`${API_BASE_URL}/categories`, {
+      headers: headers,
+    });
+
+    if (!response.ok) throw new Error("Failed to fetch categories");
+
+    return await response.json();
+  } catch (error) {
+    console.error("Fetch categories error:", error);
+    return [];
+  }
+}
+
+async function fetchClientDetails() {
+  try {
+    const token = getAuthToken();
+    if (!token) {
+      return null;
+    }
+
+    const response = await fetch(`${API_BASE_URL}/clients/get-details`, {
+      headers: {
+        "Authorization": `Bearer ${token}`,
+        "Content-Type": "application/json"
+      }
+    });
+
+    if (!response.ok) throw new Error("Failed to fetch client details");
+
+    return await response.json();
+  } catch (error) {
+    console.error("Fetch client details error:", error);
+    return null;
+  }
+}
+
+// ============================================
+// INITIALIZE ON PAGE LOAD
+// ============================================
 
 document.addEventListener("DOMContentLoaded", initializeAuth);
