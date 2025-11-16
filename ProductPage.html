@@ -633,140 +633,213 @@
       </div>
     </footer>
 
-    <script src="auth.js"></script>
+<script src="auth.js"></script>
 
-    <script>
-      function getProductId() {
-        const params = new URLSearchParams(window.location.search);
-        return params.get("id");
-      }
+<script>
+  let selectedProductForRating = null;
+  let currentRatingValue = 0;
 
-      function getStars(rating) {
-        if (!rating || rating === 0) {
-          return "☆☆☆☆☆";
+  function openRatingModal(product) {
+    selectedProductForRating = product;
+    currentRatingValue = 0;
+
+    document.getElementById("ratingProductName").textContent = `${product.brand} ${product.model}`;
+    document.getElementById("ratingModal").style.display = "block";
+
+    document.querySelectorAll("#modalStars span").forEach((star) => {
+      star.classList.remove("active");
+    });
+  }
+
+  function closeRatingModal() {
+    document.getElementById("ratingModal").style.display = "none";
+    selectedProductForRating = null;
+    currentRatingValue = 0;
+  }
+
+  async function submitRating() {
+    if (currentRatingValue === 0) {
+      alert("Please select a rating!");
+      return;
+    }
+
+    if (!selectedProductForRating) return;
+
+    const result = await submitProductRating(
+      selectedProductForRating.id,
+      currentRatingValue
+    );
+
+    if (result.success) {
+      alert(`Rating submitted successfully!`);
+      closeRatingModal();
+      location.reload();
+    } else {
+      alert(result.message || "Failed to submit rating");
+    }
+  }
+
+  document.getElementById("modalStars")?.addEventListener("click", function (e) {
+    if (e.target.tagName === "SPAN") {
+      currentRatingValue = parseInt(e.target.dataset.rating);
+      document.querySelectorAll("#modalStars span").forEach((star, index) => {
+        if (index < currentRatingValue) {
+          star.classList.add("active");
+        } else {
+          star.classList.remove("active");
         }
-        const fullStars = Math.floor(rating);
-        const emptyStars = 5 - fullStars;
-        return "★".repeat(fullStars) + "☆".repeat(emptyStars);
+      });
+    }
+  });
+
+  window.onclick = function (event) {
+    const modal = document.getElementById("ratingModal");
+    if (event.target === modal) {
+      closeRatingModal();
+    }
+  };
+
+  function getProductId() {
+    const params = new URLSearchParams(window.location.search);
+    return params.get("id");
+  }
+
+  function getStars(rating) {
+    if (!rating || rating === 0) {
+      return "☆☆☆☆☆";
+    }
+    const fullStars = Math.floor(rating);
+    const emptyStars = 5 - fullStars;
+    return "★".repeat(fullStars) + "☆".repeat(emptyStars);
+  }
+
+  async function loadProduct() {
+    const productId = getProductId();
+    if (!productId) {
+      alert("Product not found!");
+      window.location.href = "shop.html";
+      return;
+    }
+
+    try {
+      const product = await fetchProductById(productId);
+
+      if (!product) {
+        alert("Product not found!");
+        window.location.href = "shop.html";
+        return;
       }
 
-      async function loadProduct() {
-        const productId = getProductId();
-        if (!productId) {
-          alert("Product not found!");
-          window.location.href = "shop.html";
+      const productRating = product.rating || 0;
+      const hasRating = productRating > 0;
+
+      document.querySelector(".product-image img").src =
+        product.imageUrl || "https://via.placeholder.com/400";
+      document.querySelector(
+        ".product-image img"
+      ).alt = `${product.brand} ${product.model}`;
+
+      document.querySelector(
+        ".product-title"
+      ).textContent = `${product.brand} ${product.model}`;
+
+      const starsElement = document.querySelector(".stars");
+      starsElement.textContent = getStars(productRating);
+
+      if (!hasRating) {
+        starsElement.style.cursor = "pointer";
+        starsElement.title = "Click to rate this product";
+        starsElement.onclick = function() {
+          if (!checkLogin()) {
+            alert("Please log in to rate products!");
+            window.location.href = "Login.html";
+            return;
+          }
+          openRatingModal(product);
+        };
+      } else {
+        starsElement.style.cursor = "default";
+        starsElement.title = "";
+        starsElement.onclick = null;
+      }
+
+      document.querySelector(
+        ".reviews"
+      ).textContent = hasRating ? `(${productRating}/5 Rating)` : "(No ratings yet - Click stars to rate)";
+
+      document.querySelector(".stock").textContent =
+        product.price > 0 ? "In Stock" : "Out of Stock";
+
+      document.querySelector(
+        ".price"
+      ).textContent = `$${product.price.toFixed(2)}`;
+
+      document.querySelector(".product-description").textContent =
+        product.description || "No description available.";
+
+      document.querySelector(".add-to-cart-btn").onclick = function () {
+        const loggedInUser = JSON.parse(
+          localStorage.getItem("body")
+        );
+        if (!loggedInUser) {
+          alert("Please log in first!");
+          window.location.href = "Login.html";
           return;
         }
 
-        try {
-          // Fetch product details from API
-          const product = await fetchProductById(productId);
+        addToCartUI(
+          product.id,
+          `${product.brand} ${product.model}`,
+          product.price,
+          product.imageUrl
+        );
+      };
 
-          if (!product) {
-            alert("Product not found!");
-            window.location.href = "shop.html";
-            return;
-          }
-            
-          // Fetch ratings
-          const ratings = await fetchProductRatings(productId);
+      const allProducts = await fetchProducts();
+      const relatedProducts = allProducts
+        .filter(
+          (p) => p.id != productId && p.categoryId === product.categoryId
+        )
+        .slice(0, 4);
 
-document.querySelector(".product-image img").src =
-  product.imageUrl || "https://via.placeholder.com/400";
-document.querySelector(
-  ".product-image img"
-).alt = `${product.brand} ${product.model}`;
+      const relatedContainer = document.getElementById("related-products");
+      relatedContainer.innerHTML = "";
 
-document.querySelector(
-  ".product-title"
-).textContent = `${product.brand} ${product.model}`;
+      for (const rp of relatedProducts) {
+        const rpRating = rp.rating || 0;
 
-const averageRating = ratings.averageRating || 0;
-const totalRatings = ratings.totalRatings || 0;
-
-document.querySelector(".stars").textContent =
-  getStars(averageRating);
-
-document.querySelector(
-  ".reviews"
-).textContent = `(${totalRatings} Reviews)`;
-
-          document.querySelector(".stock").textContent =
-            product.price > 0 ? "In Stock" : "Out of Stock";
-
-          document.querySelector(
-            ".price"
-          ).textContent = `$${product.price.toFixed(2)}`;
-
-          document.querySelector(".product-description").textContent =
-            product.description || "No description available.";
-
-          document.querySelector(".add-to-cart-btn").onclick = function () {
-            const loggedInUser = JSON.parse(
-              localStorage.getItem("loggedInUser")
-            );
-            if (!loggedInUser) {
-              alert("Please log in first!");
-              window.location.href = "Login.html";
-              return;
-            }
-
-            addToCartUI(
-              product.id,
-              `${product.brand} ${product.model}`,
-              product.price,
-              product.imageUrl
-            );
-          };
-
-          // Load related products from API
-          const allProducts = await fetchProducts();
-          const relatedProducts = allProducts
-            .filter(
-              (p) => p.id != productId && p.categoryId === product.categoryId
-            )
-            .slice(0, 4);
-
-          const relatedContainer = document.getElementById("related-products");
-          relatedContainer.innerHTML = "";
-
-          for (const rp of relatedProducts) {
-            const rpRatings = await fetchProductRatings(rp.id);
-            const rpRating = rpRatings.averageRating || 0;
-            const rpTotalRatings = rpRatings.totalRatings || 0;
-
-            const card = document.createElement("div");
-            card.className = "product-card";
-            card.innerHTML = `
-        <div class="product-card-image">
-          <img src="${rp.imageUrl || "https://via.placeholder.com/200"}" alt="${
-              rp.brand
-            } ${rp.model}">
-        </div>
-        <div class="product-card-info">
-          <h4 class="product-card-title">${rp.brand} ${rp.model}</h4>
-          <div class="product-card-price">
-            <span class="current-price">$${rp.price.toFixed(2)}</span>
-          </div>
-          <div class="product-card-rating">
-            <span class="product-card-stars">${getStars(rpRating)}</span>
-            <span class="product-card-reviews">(${rpTotalRatings})</span>
-          </div>
-        </div>
-      `;
-            card.onclick = () => {
-              window.location.href = `ProductPage.html?id=${rp.id}`;
-            };
-            relatedContainer.appendChild(card);
-          }
-        } catch (error) {
-          console.error("Product load error:", error);
-          alert("Failed to load product!");
-          window.location.href = "shop.html";
-        }
+        const card = document.createElement("div");
+        card.className = "product-card";
+        card.innerHTML = `
+    <div class="product-card-image">
+      <img src="${rp.imageUrl || "https://via.placeholder.com/200"}" alt="${
+          rp.brand
+        } ${rp.model}">
+    </div>
+    <div class="product-card-info">
+      <h4 class="product-card-title">${rp.brand} ${rp.model}</h4>
+      <div class="product-card-price">
+        <span class="current-price">$${rp.price.toFixed(2)}</span>
+      </div>
+      <div class="product-card-rating">
+        <span class="product-card-stars">${getStars(rpRating)}</span>
+        <span class="product-card-reviews">(${rpRating > 0 ? rpRating + "/5" : "No rating"})</span>
+      </div>
+    </div>
+  `;
+        card.onclick = () => {
+          window.location.href = `ProductPage.html?id=${rp.id}`;
+        };
+        relatedContainer.appendChild(card);
       }
+    } catch (error) {
+      console.error("Product load error:", error);
+      alert("Failed to load product!");
+      window.location.href = "shop.html";
+    }
+  }
 
-      document.addEventListener("DOMContentLoaded", loadProduct);
-    </script>
+  document.addEventListener("DOMContentLoaded", loadProduct);
+</script>
   </body>
 </html>

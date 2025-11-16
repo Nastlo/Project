@@ -472,72 +472,7 @@
             document.querySelector(".username-text").innerHTML = username;
       }
       document.addEventListener("DOMContentLoaded", async function () {
-        const loggedInUser = JSON.parse(localStorage.getItem("loggedInUser"));
 
-        if (!loggedInUser) {
-          // alert("Please log in first!");
-          // window.location.href = "Login.html";
-          return;
-        }
-
-        const userCard = document.getElementById("userCard");
-
-        try {
-          const clientDetails = await fetchCliensssssssstDetails();
-          console.log(clientDetails)
-          let displayData = null;
-
-          if (clientDetails) {
-            console.log("Client details from API:", clientDetails);
-            displayData = clientDetails;
-          } else {
-            console.log("Using localStorage data");
-            displayData = loggedInUser;
-          }
-
-          userCard.innerHTML = `
-            <h1>User Details</h1>
-            <div class="detail-row">
-              <span class="label">Name:</span>
-              <span class="value">${displayData.name || "N/A"}</span>
-            </div>
-            <div class="detail-row">
-              <span class="label">Surname:</span>
-              <span class="value">${displayData.surname || "N/A"}</span>
-            </div>
-            <div class="detail-row">
-              <span class="label">Email:</span>
-              <span class="value">${displayData.email || "N/A"}</span>
-            </div>
-            <div class="detail-row">
-              <span class="label">Username:</span>
-              <span class="value">${displayData.username || "N/A"}</span>
-            </div>
-          `;
-
-        } catch (error) {
-          console.error("Error loading user details:", error);
-          
-          userCard.innerHTML = `
-            <h1>User Details</h1>
-            <div class="detail-row">
-              <span class="label">Name:</span>
-              <span class="value">${loggedInUser.name || "N/A"}</span>
-            </div>
-            <div class="detail-row">
-              <span class="label">Surname:</span>
-              <span class="value">${loggedInUser.surname || "N/A"}</span>
-            </div>
-            <div class="detail-row">
-              <span class="label">Email:</span>
-              <span class="value">${loggedInUser.email || "N/A"}</span>
-            </div>
-            <div class="detail-row">
-              <span class="label">Username:</span>
-              <span class="value">${loggedInUser.username || "N/A"}</span>
-            </div>
-          `;
-        }
       });
     </script>
   </body>

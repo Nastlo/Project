@@ -20,7 +20,6 @@ function initializeAuth() {
 }
 
 function updateUserUI() {
-  // const loggedInUser = JSON.parse(localStorage.getItem("loggedInUser"));
   const body = JSON.parse(localStorage.getItem("body"));
   const userIcon = document.querySelector(".user-icon");
   const usernameText = document.querySelector(".username-text");
@@ -28,7 +27,6 @@ function updateUserUI() {
   localStorage.removeItem("loggedInUser");
 
   if (body && userIcon && usernameText) {
-    // usernameText.textContent = loggedInUser.username || loggedInUser.name || "User";
     userIcon.href = "account.html";
     userIcon.style.display = "flex";
 
@@ -50,8 +48,6 @@ function updateUserUI() {
 function logoutUser() {
   if (confirm("Are you sure you want to log out?")) {
     removeAuthToken();
-    // localStorage.removeItem("loggedInUser");
-    // localStorage.removeItem("cart");
     alert("Successfully logged out!");
     window.location.href = "index.html";
   }
@@ -169,7 +165,7 @@ async function loginUser(username, password) {
     });
 
     const data = await response.json();
-    console.log(data)
+    console.log(data);
     if (!response.ok) {
       return { success: false, message: data.message || "Login failed!" };
     }
@@ -284,20 +280,28 @@ async function createProduct(productData) {
   }
 }
 
-async function updateProduct(productId, productData) {
+async function updateProduct(productId) {
   try {
     const token = getAuthToken();
     if (!token) {
       return { success: false, message: "Please login first" };
     }
 
-    const response = await fetch(`${API_BASE_URL}/products/${productId}`, {
+    const response = await fetch(`${API_BASE_URL}/products`, {
       method: "PUT",
       headers: {
         "Content-Type": "application/json",
         Authorization: `Bearer ${token}`,
       },
-      body: JSON.stringify(productData),
+      body: JSON.stringify({
+        id: productId,
+        brand: document.getElementById("brand").value,
+        model: document.getElementById("model").value,
+        categoryId: parseInt(document.getElementById("category").value),
+        description: document.getElementById("description").value,
+        price: parseFloat(document.getElementById("price").value),
+        imageUrl: document.getElementById("imageURL").value,
+      }),
     });
 
     if (!response.ok) {
@@ -316,55 +320,99 @@ async function updateProduct(productId, productData) {
   }
 }
 
-async function deleteProduct(productId) {
-  try {
-    const token = getAuthToken();
-    if (!token) {
-      return { success: false, message: "Please login first" };
-    }
 
-    const response = await fetch(
-      `${API_BASE_URL}/products/delete/${productId}`,
-      {
-        method: "DELETE",
-        headers: {
-          Authorization: `Bearer ${token}`,
-        },
-      }
-    );
 
-    if (!response.ok) {
-      return { success: false, message: "Failed to delete product" };
-    }
+// async function fetchMyProducts() {
+//   try {
+//     const token = getAuthToken();
+//     if (!token) {
+//       return [];
+//     }
 
-    return { success: true };
-  } catch (error) {
-    console.error("Delete product error:", error);
-    return { success: false, message: "Network error" };
-  }
-}
+//     const response = await fetch(`${API_BASE_URL}/products/myProducts`, {
+//       headers: {
+//         Authorization: `Bearer ${token}`,
+//       },
+//     });
+//     const tbody = document.getElementById("productTableBody");
 
-async function fetchMyProducts() {
-  try {
-    const token = getAuthToken();
-    if (!token) {
-      return [];
-    }
+//     if (!checkLogin()) return;
 
-    const response = await fetch(`${API_BASE_URL}/products/myProducts`, {
-      headers: {
-        Authorization: `Bearer ${token}`,
-      },
-    });
+//     tbody.innerHTML =
+//       '<tr><td colspan="8" style="text-align:center; padding:40px;">Loading...</td></tr>';
 
-    if (!response.ok) throw new Error("Failed to fetch my products");
+//       const products = await fetchMyProducts();
 
-    return await response.json();
-  } catch (error) {
-    console.error("Fetch my products error:", error);
-    return [];
-  }
-}
+//       tbody.innerHTML = "";
+
+//       if (products.length === 0) {
+//         tbody.innerHTML = `
+//     <tr>
+//       <td colspan="8" class="empty-state">
+//         <i class="fas fa-box-open"></i>
+//         <h3>No products yet</h3>
+//         <p>Create your first product to get started!</p>
+//       </td>
+//     </tr>
+//   `;
+//         return;
+//       }
+
+//       for (const product of products) {
+//         const productRating = product.rating || 0;
+
+//         const row = document.createElement("tr");
+//         row.setAttribute("data-product-id", product.id);
+
+//         row.innerHTML = `
+//     <td>${product.id}</td>
+//     <td>${product.brand}</td>
+//     <td>${product.model}</td>
+//     <td>${product.category ? product.category.name : "N/A"}</td>
+//     <td>
+//       <img src="${
+//         product.imageUrl || "https://via.placeholder.com/120x80"
+//       }"
+//            alt="${product.brand}"
+//            class="product-image"
+//            onerror="this.src='https://via.placeholder.com/120x80/e8f4f8/333333?text=No+Image'">
+//     </td>
+//     <td>$${product.price.toFixed(2)}</td>
+//     <td>${
+//       productRating > 0 ? productRating.toFixed(1) + "/5" : "No rating"
+//     }</td>
+//     <td>
+//       <div class="actions">
+//         <button class="btn-edit" onclick="editProduct(${
+//           product.id
+//         })">Edit</button>
+//         <button class="btn-delete" onclick="deleteProductById(${
+//           product.id
+//         }, '${product.brand} ${product.model}')">Delete</button>
+//       </div>
+//     </td>
+//   `;
+//         tbody.appendChild(row);
+//       }
+
+//       console.error("Failed to load products:", error);
+//       tbody.innerHTML = `
+//   <tr>
+//     <td colspan="8" style="text-align:center; padding:40px; color:#e74c3c;">
+//       <i class="fas fa-exclamation-triangle"></i>
+//       <p>Failed to load products. Please try again.</p>
+//     </td>
+//   </tr>
+// `;
+
+//     if (!response.ok) throw new Error("Failed to fetch my products");
+
+//     return await response.json();
+//   } catch (error) {
+//     console.error("Fetch my products error:", error);
+//     return [];
+//   }
+// }
 
 async function submitProductRating(productId, rating) {
   try {
@@ -427,22 +475,12 @@ async function fetchProductRatings(productId) {
 
 async function fetchCategories() {
   try {
-    const token = getAuthToken();
-    const headers = {
-      "Content-Type": "application/json",
-    };
-
-    if (token) {
-      headers["Authorization"] = `Bearer ${token}`;
-    }
-
-    const response = await fetch(`${API_BASE_URL}/categories`, {
-      headers: headers,
-    });
+    const response = await fetch(`${API_BASE_URL}/categories`);
 
     if (!response.ok) throw new Error("Failed to fetch categories");
 
-    return await response.json();
+    const data = await response.json();
+    return data || [];
   } catch (error) {
     console.error("Fetch categories error:", error);
     return [];
@@ -453,37 +491,95 @@ async function fetchClientDetails() {
   try {
     const token = getAuthToken();
     if (!token) {
+      console.error("No authentication token found");
       return null;
     }
-    fetch(`${API_BASE_URL}/clients/get-details`,
-      {
-        headers: {
-        "Authorization": `Bearer ${token}`,
-        }
-      }
-    ).then(response => {
-      return response.json()
-    }).then(data => {
-      console.log(data)
-    })
 
-    
+    const response = await fetch(`${API_BASE_URL}/clients/get-details`, {
+      headers: {
+        Authorization: `Bearer ${token}`,
+      },
+    });
 
-    // const response = await fetch(`${API_BASE_URL}/clients/get-details`, {
-    //   headers: {
-    //     "Authorization": `Bearer ${token}`,
-    //   }
-    // });
+    if (!response.ok) {
+      throw new Error(`HTTP error! status: ${response.status}`);
+    }
 
-    // if (!response.ok) throw new Error("Failed to fetch client details");
+    const data = await response.json();
+    console.log(data);
 
-    // let response_data = await response.json();
-    // console.log(response_data);
-    // return response_data.data;
+    const userCard = document.getElementById("userCard");
+    if (userCard) {
+      userCard.innerHTML = `
+        <h1>User Details</h1>
+        <div class="detail-row">
+          <span class="label">Name:</span>
+          <span class="value">${data.name || "N/A"}</span>
+        </div>
+        <div class="detail-row">
+          <span class="label">Surname:</span>
+          <span class="value">${data.surname || "N/A"}</span>
+        </div>
+        <div class="detail-row">
+          <span class="label">Email:</span>
+          <span class="value">${data.email || "N/A"}</span>
+        </div>
+        <div class="detail-row">
+          <span class="label">Username:</span>
+          <span class="value">${data.username || "N/A"}</span>
+        </div>
+      `;
+    }
+
+    return data;
   } catch (error) {
     console.error("Fetch client details error:", error);
     return null;
   }
 }
 
-document.addEventListener("DOMContentLoaded", initializeAuth);
+function loadUsername() {
+  const bodyData = localStorage.getItem("body");
+  if (bodyData) {
+    try {
+      const body = JSON.parse(bodyData);
+      const usernameElement = document.querySelector(".username-text");
+      if (usernameElement && body.username) {
+        usernameElement.innerHTML = body.username;
+      }
+    } catch (error) {
+      console.error("Error parsing localStorage data:", error);
+    }
+  }
+}
+
+
+
+function showNotification(message) {
+  const notification = document.createElement("div");
+  notification.className = "notification";
+  notification.textContent = message;
+  document.body.appendChild(notification);
+
+  setTimeout(() => {
+    notification.style.animation = "slideIn 0.3s ease reverse";
+    setTimeout(() => notification.remove(), 300);
+  }, 3000);
+}
+
+document.querySelector(".search-bar").addEventListener("input", function (e) {
+  const searchTerm = e.target.value.toLowerCase();
+  const rows = document.querySelectorAll("#productTableBody tr");
+
+  rows.forEach((row) => {
+    const text = row.textContent.toLowerCase();
+    row.style.display = text.includes(searchTerm) ? "" : "none";
+  });
+});
+
+document.addEventListener("DOMContentLoaded", () => {
+  initializeAuth();
+  loadUsername();
+  fetchClientDetails();
+  // loadProducts();
+});

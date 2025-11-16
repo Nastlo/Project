@@ -3,7 +3,7 @@
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>Create Product</title>
+    <title>Product Management</title>
     <link
       rel="stylesheet"
       href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css"
@@ -99,6 +99,11 @@
         border-radius: 4px;
       }
 
+      .search-bar:focus {
+        outline: none;
+        border-color: #e74c3c;
+      }
+
       .cart-btn {
         background-color: white;
         border: 1px solid #ddd;
@@ -182,6 +187,13 @@
         font-size: 14px;
         font-weight: 500;
         color: #555;
+        display: flex;
+        align-items: center;
+        gap: 8px;
+      }
+
+      label i {
+        color: #e74c3c;
       }
 
       input,
@@ -237,6 +249,10 @@
         font-weight: bold;
         font-size: 15px;
         transition: background 0.3s;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        gap: 8px;
       }
 
       .save-btn:hover {
@@ -254,6 +270,10 @@
         font-weight: bold;
         font-size: 15px;
         transition: background 0.3s;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        gap: 8px;
       }
 
       .reset-btn:hover {
@@ -368,10 +388,10 @@
     </header>
 
     <div class="container">
-      <h2>Create New Product</h2>
+      <h2 id="formTitle">Create New Product</h2>
       <form id="productForm">
         <div class="form-group">
-          <label>Brand *</label>
+          <label><i class="fas fa-tag"></i> Brand *</label>
           <input
             type="text"
             id="brand"
@@ -381,7 +401,7 @@
         </div>
 
         <div class="form-group">
-          <label>Model *</label>
+          <label><i class="fas fa-cube"></i> Model *</label>
           <input
             type="text"
             id="model"
@@ -391,14 +411,14 @@
         </div>
 
         <div class="form-group">
-          <label>Category *</label>
+          <label><i class="fas fa-list"></i> Category *</label>
           <select id="category" required>
             <option value="">Select category</option>
           </select>
         </div>
 
         <div class="form-group">
-          <label>Description</label>
+          <label><i class="fas fa-align-left"></i> Description</label>
           <textarea
             id="description"
             placeholder="Enter product description (optional)"
@@ -406,7 +426,7 @@
         </div>
 
         <div class="form-group">
-          <label>Price *</label>
+          <label><i class="fas fa-dollar-sign"></i> Price *</label>
           <input
             type="number"
             id="price"
@@ -417,7 +437,7 @@
         </div>
 
         <div class="form-group">
-          <label>Image URL *</label>
+          <label><i class="fas fa-image"></i> Image URL *</label>
           <input
             type="url"
             id="imageURL"
@@ -431,9 +451,11 @@
         </div>
 
         <div class="buttons">
-          <button type="submit" class="save-btn">💾 Save Product</button>
-          <button type="reset" class="reset-btn" onclick="resetPreview()">
-            🔄 Reset
+          <button type="submit" class="save-btn">
+            <i class="fas fa-save"></i> <span id="btnText">Save Product</span>
+          </button>
+          <button type="button" class="reset-btn" onclick="handleReset()">
+            <i class="fas fa-redo"></i> Reset
           </button>
         </div>
       </form>
@@ -496,6 +518,9 @@
 
     <script src="auth.js"></script>
     <script>
+      let productId = null;
+      let isEditMode = false;
+
       async function loadCategories() {
         const categorySelect = document.getElementById("category");
 
@@ -512,13 +537,6 @@
           });
         } catch (error) {
           console.error("Failed to load categories:", error);
-          categorySelect.innerHTML = `
-            <option value="">Select category</option>
-            <option value="1">Clothing</option>
-            <option value="2">Footwear</option>
-            <option value="3">Accessories</option>
-            <option value="4">Tablets</option>
-          `;
         }
       }
 
@@ -544,6 +562,53 @@
         img.src = "";
       }
 
+      function handleReset() {
+        if (isEditMode) {
+          if (confirm("Are you sure you want to cancel editing?")) {
+            window.location.href = "userproducts.html";
+          }
+        } else {
+          document.getElementById("productForm").reset();
+          resetPreview();
+        }
+      }
+
+      async function loadProduct() {
+        if (!checkLogin()) return;
+
+        const urlParams = new URLSearchParams(window.location.search);
+        productId = urlParams.get("id");
+
+        if (productId) {
+          isEditMode = true;
+          document.getElementById("formTitle").textContent = "Edit Product";
+          document.getElementById("btnText").textContent = "Update Product";
+
+          await loadCategories();
+
+          const product = await fetchProductById(productId);
+
+          if (!product) {
+            alert("Product not found!");
+            window.location.href = "userproducts.html";
+            return;
+          }
+
+          document.getElementById("brand").value = product.brand;
+          document.getElementById("model").value = product.model;
+          document.getElementById("category").value =
+            product.categoryId || product.category?.id;
+          document.getElementById("description").value =
+            product.description || "";
+          document.getElementById("price").value = product.price;
+          document.getElementById("imageURL").value = product.imageUrl;
+
+          previewImage();
+        } else {
+          await loadCategories();
+        }
+      }
+
       document
         .getElementById("productForm")
         .addEventListener("submit", async function (e) {
@@ -552,9 +617,10 @@
           if (!checkLogin()) return;
 
           const submitBtn = e.target.querySelector('button[type="submit"]');
-          const originalText = submitBtn.textContent;
+          const btnText = document.getElementById("btnText");
+          const originalText = btnText.textContent;
           submitBtn.disabled = true;
-          submitBtn.textContent = "Creating...";
+          btnText.textContent = isEditMode ? "Updating..." : "Creating...";
 
           const productData = {
             brand: document.getElementById("brand").value,
@@ -565,20 +631,29 @@
             imageUrl: document.getElementById("imageURL").value,
           };
 
-          const result = await createProduct(productData);
+          let result;
+          if (isEditMode) {
+            result = await updateProduct(productId, productData);
+          } else {
+            result = await createProduct(productData);
+          }
 
           submitBtn.disabled = false;
-          submitBtn.textContent = originalText;
+          btnText.textContent = originalText;
 
           if (result.success) {
-            alert("Product created successfully!");
+            alert(
+              isEditMode
+                ? "Product updated successfully!"
+                : "Product created successfully!"
+            );
             window.location.href = "userproducts.html";
           } else {
-            alert(result.message || "Failed to create product");
+            alert(result.message || "Operation failed");
           }
         });
 
-      window.addEventListener("DOMContentLoaded", loadCategories);
+      window.addEventListener("DOMContentLoaded", loadProduct);
     </script>
   </body>
 </html>

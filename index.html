@@ -1017,11 +1017,7 @@
 
     <script src="auth.js"></script>
     <script>
-      if (JSON.parse(localStorage.getItem("body"))) {
-            const body = JSON.parse(localStorage.getItem("body"));
-            const username = body.username;
-            document.querySelector(".username-text").innerHTML = username;
-      }
+
 
       function updateCountdown() {
         const countdownElements =

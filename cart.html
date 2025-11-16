@@ -558,118 +558,118 @@
       </div>
     </footer>
 
-    <script src="auth.js"></script>
-    <script>
-      if (!checkLogin()) {
-      }
+<script src="auth.js"></script>
+<script>
+  if (!checkLogin()) {
+  }
 
-      function renderCart() {
-        const cart = getCart();
-        const cartContent = document.getElementById("cartContent");
+  function renderCart() {
+    const cart = getCart();
+    const cartContent = document.getElementById("cartContent");
 
-        if (cart.length === 0) {
-          cartContent.innerHTML = `
-            <div class="empty-cart">
-                <p>Your cart is empty!</p>
-                <button class="back-to-shop" onclick="window.location.href='shop.html'">Continue Shopping</button>
-            </div>
-        `;
-          return;
-        }
-
-        let html = `<div class="cart-table">
-        <div class="cart-header">
-            <div>Product</div>
-            <div>Price</div>
-            <div>Quantity</div>
-            <div>Subtotal</div>
-            <div></div>
-        </div>`;
-
-        let subtotal = 0;
-
-        cart.forEach((item, index) => {
-          const itemSubtotal = item.price * item.quantity;
-          subtotal += itemSubtotal;
-
-          html += `
-            <div class="cart-item" data-index="${index}">
-                <div class="product-info">
-                    <img src="${
-                      item.imageUrl || "https://via.placeholder.com/80"
-                    }" alt="${item.name}" class="product-image">
-                    <div class="product-name">${item.name}</div>
-                </div>
-                <div class="price">$${item.price.toFixed(2)}</div>
-                <div class="quantity">
-                    <input type="number" class="quantity-input" value="${
-                      item.quantity
-                    }" min="1" onchange="updateQuantity(${index}, this.value)">
-                </div>
-                <div class="subtotal">$${itemSubtotal.toFixed(2)}</div>
-                <div>
-                    <button class="remove-btn" onclick="removeFromCart(${index})">Remove</button>
-                </div>
-            </div>
-        `;
-        });
-
-        html += `</div>
-        <div class="cart-summary">
-            <div class="summary-title">Cart Total</div>
-            <div class="summary-row">
-                <span>Subtotal:</span>
-                <span id="subtotal">$${subtotal.toFixed(2)}</span>
-            </div>
-            <div class="summary-row">
-                <span>Shipping:</span>
-                <span>Free</span>
-            </div>
-            <div class="summary-row total">
-                <span>Total:</span>
-                <span id="total">$${subtotal.toFixed(2)}</span>
-            </div>
-            <button class="checkout-btn" onclick="checkout()">Process to checkout</button>
+    if (cart.length === 0) {
+      cartContent.innerHTML = `
+        <div class="empty-cart">
+            <p>Your cart is empty!</p>
+            <button class="back-to-shop" onclick="window.location.href='shop.html'">Continue Shopping</button>
         </div>
     `;
+      return;
+    }
 
-        cartContent.innerHTML = html;
-      }
+    let html = `<div class="cart-table">
+    <div class="cart-header">
+        <div>Product</div>
+        <div>Price</div>
+        <div>Quantity</div>
+        <div>Subtotal</div>
+        <div></div>
+    </div>`;
 
-      function updateQuantity(index, newQuantity) {
-        let cart = getCart();
-        const quantity = parseInt(newQuantity);
+    let subtotal = 0;
 
-        if (quantity > 0) {
-          cart[index].quantity = quantity;
-          updateCart(cart);
-          renderCart();
-        } else {
-          alert("Quantity must be at least 1");
-          renderCart();
-        }
-      }
+    cart.forEach((item, index) => {
+      const itemSubtotal = item.price * item.quantity;
+      subtotal += itemSubtotal;
 
-      function removeFromCart(index) {
-        let cart = getCart();
-        const itemName = cart[index].name;
-        if (confirm(`Are you sure you want to remove ${itemName} from cart?`)) {
-          cart.splice(index, 1);
-          updateCart(cart);
-          renderCart();
-        }
-      }
+      html += `
+        <div class="cart-item" data-index="${index}">
+            <div class="product-info">
+                <img src="${
+                  item.imageUrl || "https://via.placeholder.com/80"
+                }" alt="${item.name}" class="product-image">
+                <div class="product-name">${item.name}</div>
+            </div>
+            <div class="price">$${item.price.toFixed(2)}</div>
+            <div class="quantity">
+                <input type="number" class="quantity-input" value="${
+                  item.quantity
+                }" min="1" onchange="updateQuantity(${index}, this.value)">
+            </div>
+            <div class="subtotal">$${itemSubtotal.toFixed(2)}</div>
+            <div>
+                <button class="remove-btn" onclick="removeFromCart(${index})">Remove</button>
+            </div>
+        </div>
+    `;
+    });
 
-      function checkout() {
-        const cart = getCart();
-        if (cart.length === 0) {
-          alert("Your cart is empty!");
-          return;
-        }
-        window.location.href = "checkout.html";
-      }
+    html += `</div>
+    <div class="cart-summary">
+        <div class="summary-title">Cart Total</div>
+        <div class="summary-row">
+            <span>Subtotal:</span>
+            <span id="subtotal">$${subtotal.toFixed(2)}</span>
+        </div>
+        <div class="summary-row">
+            <span>Shipping:</span>
+            <span>Free</span>
+        </div>
+        <div class="summary-row total">
+            <span>Total:</span>
+            <span id="total">$${subtotal.toFixed(2)}</span>
+        </div>
+        <button class="checkout-btn" onclick="checkout()">Process to checkout</button>
+    </div>
+`;
 
-      document.addEventListener("DOMContentLoaded", renderCart);
-    </script>
+    cartContent.innerHTML = html;
+  }
+
+  function updateQuantity(index, newQuantity) {
+    let cart = getCart();
+    const quantity = parseInt(newQuantity);
+
+    if (quantity > 0) {
+      cart[index].quantity = quantity;
+      updateCart(cart);
+      renderCart();
+    } else {
+      alert("Quantity must be at least 1");
+      renderCart();
+    }
+  }
+
+  function removeFromCart(index) {
+    let cart = getCart();
+    const itemName = cart[index].name;
+    if (confirm(`Are you sure you want to remove ${itemName} from cart?`)) {
+      cart.splice(index, 1);
+      updateCart(cart);
+      renderCart();
+    }
+  }
+
+  function checkout() {
+    const cart = getCart();
+    if (cart.length === 0) {
+      alert("Your cart is empty!");
+      return;
+    }
+    window.location.href = "checkout.html";
+  }
+
+  document.addEventListener("DOMContentLoaded", renderCart);
+</script>
   </body>
 </html>

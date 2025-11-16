@@ -363,6 +363,16 @@
         z-index: 1000;
         animation: slideIn 0.3s ease;
       }
+    
+    main{
+      width: 100%;
+    }
+
+    .submain{
+      width: 55%;
+      margin: auto;
+    }
+
     </style>
   </head>
   <body>
@@ -397,9 +407,19 @@
       </div>
     </header>
 
-    <div class="container">
+    <main>
+      <div class="submain">
+<div class="container">
       <a href="Createproduct.html" class="newproduct">+ New Product</a>
       <div class="table-container">
+                  <div>
+              <label>Səhifədə neçə məhsul göstərilsin: </label>
+              <select id="size-select">
+                  <option value="5">5</option>
+                  <option value="10" selected>10</option>
+                  <option value="20">20</option>
+              </select>
+          </div>
         <table>
           <thead>
             <tr>
@@ -417,6 +437,16 @@
         </table>
       </div>
     </div>
+        <div class="btn-groups">
+          <button id="prev-btn">Əvvəlki</button>
+          <span id="page-info"></span>
+          <button id="next-btn">Sonrakı</button>
+      </div>
+      </div>
+
+    </main>
+
+      
 
     <footer>
       <div class="footer-content">
@@ -474,126 +504,6 @@
     </footer>
 
     <script src="auth.js"></script>
-    <script>
-      async function loadProducts() {
-        const tbody = document.getElementById("productTableBody");
-
-        if (!checkLogin()) return;
-
-        tbody.innerHTML =
-          '<tr><td colspan="8" style="text-align:center; padding:40px;">Loading...</td></tr>';
-
-        try {
-          const products = await fetchMyProducts();
-
-          tbody.innerHTML = "";
-
-          if (products.length === 0) {
-            tbody.innerHTML = `
-        <tr>
-          <td colspan="8" class="empty-state">
-            <i class="fas fa-box-open"></i>
-            <h3>No products yet</h3>
-            <p>Create your first product to get started!</p>
-          </td>
-        </tr>
-      `;
-            return;
-          }
-
-          for (const product of products) {
-            const ratings = await fetchProductRatings(product.id);
-            const avgRating = ratings.averageRating || 0;
-            const totalRatings = ratings.totalRatings || 0;
-
-            const row = document.createElement("tr");
-            row.setAttribute("data-product-id", product.id);
-
-            row.innerHTML = `
-        <td>${product.id}</td>
-        <td>${product.brand}</td>
-        <td>${product.model}</td>
-        <td>${product.category ? product.category.name : "N/A"}</td>
-        <td>
-          <img src="${
-            product.imageUrl || "https://via.placeholder.com/120x80"
-          }" 
-               alt="${product.brand}" 
-               class="product-image" 
-               onerror="this.src='https://via.placeholder.com/120x80/e8f4f8/333333?text=No+Image'">
-        </td>
-        <td>$${product.price.toFixed(2)}</td>
-        <td>${
-          avgRating > 0 ? avgRating.toFixed(1) : "No rating"
-        }/5 (${totalRatings})</td>
-        <td>
-          <div class="actions">
-            <button class="btn-edit" onclick="editProduct(${
-              product.id
-            })">Edit</button>
-            <button class="btn-delete" onclick="deleteProductById(${
-              product.id
-            }, '${product.brand} ${product.model}')">Delete</button>
-          </div>
-        </td>
-      `;
-            tbody.appendChild(row);
-          }
-        } catch (error) {
-          console.error("Failed to load products:", error);
-          tbody.innerHTML = `
-      <tr>
-        <td colspan="8" style="text-align:center; padding:40px; color:#e74c3c;">
-          <i class="fas fa-exclamation-triangle"></i>
-          <p>Failed to load products. Please try again.</p>
-        </td>
-      </tr>
-    `;
-        }
-      }
-
-      async function editProduct(productId) {
-        window.location.href = `editproduct.html?id=${productId}`;
-      }
-
-      async function deleteProductById(productId, productName) {
-        if (confirm(`Are you sure you want to delete ${productName}?`)) {
-          const result = await deleteProduct(productId);
-
-          if (result.success) {
-            showNotification("Product deleted successfully!");
-            loadProducts();
-          } else {
-            alert(result.message || "Failed to delete product");
-          }
-        }
-      }
-
-      function showNotification(message) {
-        const notification = document.createElement("div");
-        notification.className = "notification";
-        notification.textContent = message;
-        document.body.appendChild(notification);
-
-        setTimeout(() => {
-          notification.style.animation = "slideIn 0.3s ease reverse";
-          setTimeout(() => notification.remove(), 300);
-        }, 3000);
-      }
-
-      document
-        .querySelector(".search-bar")
-        .addEventListener("input", function (e) {
-          const searchTerm = e.target.value.toLowerCase();
-          const rows = document.querySelectorAll("#productTableBody tr");
-
-          rows.forEach((row) => {
-            const text = row.textContent.toLowerCase();
-            row.style.display = text.includes(searchTerm) ? "" : "none";
-          });
-        });
-
-      window.addEventListener("DOMContentLoaded", loadProducts);
-    </script>
+    <script src="userproducts.js"></script>
   </body>
 </html>
