@@ -60,6 +60,11 @@
         text-decoration: none;
         color: #333;
         font-size: 14px;
+        transition: color 0.3s;
+      }
+
+      nav a:hover {
+        color: #e74c3c;
       }
 
       .shop-btn {
@@ -140,6 +145,7 @@
         display: flex;
         align-items: center;
         gap: 15px;
+        flex-wrap: wrap;
       }
 
       .search-box {
@@ -158,6 +164,11 @@
         border-radius: 4px;
         cursor: pointer;
         font-weight: 500;
+        transition: background 0.3s;
+      }
+
+      .all-products-btn:hover {
+        background-color: #c62828;
       }
 
       .sort-dropdown {
@@ -181,12 +192,18 @@
       .sidebar {
         width: 200px;
         flex-shrink: 0;
+        background-color: white;
+        padding: 20px;
+        border-radius: 8px;
+        height: fit-content;
+        box-shadow: 0 2px 10px rgba(0, 0, 0, 0.05);
       }
 
       .sidebar h3 {
         font-size: 18px;
         margin-bottom: 15px;
         font-weight: bold;
+        color: #333;
       }
 
       .category-list {
@@ -195,18 +212,22 @@
       }
 
       .category-list li {
-        padding: 8px 0;
+        padding: 10px 12px;
         cursor: pointer;
         font-size: 14px;
-        transition: color 0.3s;
+        transition: all 0.3s;
+        border-radius: 4px;
+        margin-bottom: 5px;
       }
 
       .category-list li:hover {
+        background-color: #ffebee;
         color: #e53935;
       }
 
       .category-list li.active {
-        color: #e53935;
+        background-color: #e53935;
+        color: white;
         font-weight: 500;
       }
 
@@ -214,24 +235,32 @@
         font-size: 18px;
         margin-bottom: 15px;
         font-weight: bold;
+        color: #333;
       }
 
       .rate-option {
         display: flex;
         align-items: center;
         gap: 8px;
-        margin-bottom: 8px;
+        margin-bottom: 10px;
         cursor: pointer;
-        transition: opacity 0.3s;
+        transition: all 0.3s;
+        padding: 8px 12px;
+        border-radius: 4px;
       }
 
       .rate-option:hover {
-        opacity: 0.7;
+        background-color: #fff3e0;
       }
 
       .rate-option.active {
+        background-color: #ff9800;
+        color: white;
         font-weight: 500;
-        color: #e53935;
+      }
+
+      .rate-option.active .stars {
+        color: white;
       }
 
       .stars {
@@ -257,7 +286,7 @@
       }
 
       .product-card:hover {
-        box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+        box-shadow: 0 8px 20px rgba(0, 0, 0, 0.12);
         transform: translateY(-5px);
       }
 
@@ -275,11 +304,12 @@
         font-weight: 500;
         margin-bottom: 10px;
         min-height: 40px;
+        color: #333;
       }
 
       .product-price {
         color: #e53935;
-        font-size: 18px;
+        font-size: 20px;
         font-weight: bold;
         margin-bottom: 8px;
       }
@@ -314,6 +344,20 @@
 
       .add-to-cart-btn:hover {
         background-color: #555;
+      }
+
+      .loading-message,
+      .error-message,
+      .empty-message {
+        grid-column: 1/-1;
+        text-align: center;
+        padding: 60px 20px;
+        font-size: 16px;
+        color: #666;
+      }
+
+      .error-message {
+        color: #e74c3c;
       }
 
       footer {
@@ -397,6 +441,14 @@
       }
 
       @media (max-width: 900px) {
+        .main-content {
+          flex-direction: column;
+        }
+
+        .sidebar {
+          width: 100%;
+        }
+
         .footer-content {
           grid-template-columns: repeat(2, 1fr);
           gap: 30px;
@@ -404,6 +456,10 @@
       }
 
       @media (max-width: 600px) {
+        .products-grid {
+          grid-template-columns: 1fr;
+        }
+
         .footer-content {
           grid-template-columns: 1fr;
           text-align: center;
@@ -458,11 +514,11 @@
         <input
           type="text"
           class="search-box"
-          placeholder="search"
+          placeholder="Search products..."
           id="productSearch"
         />
         <button class="all-products-btn" id="allProductsBtn">
-          All products
+          <i class="fas fa-list"></i> All products
         </button>
         <select class="sort-dropdown" id="sortDropdown">
           <option value="">Sort by</option>
@@ -502,7 +558,12 @@
             </div>
           </aside>
 
-          <div class="products-grid" id="productsGrid"></div>
+          <div class="products-grid" id="productsGrid">
+            <div class="loading-message">
+              <i class="fas fa-spinner fa-spin" style="font-size: 48px; margin-bottom: 20px;"></i>
+              <p>Loading products...</p>
+            </div>
+          </div>
         </div>
       </div>
     </div>
@@ -570,6 +631,7 @@ let currentFilters = {
   search: ''
 };
 let categories = [];
+let allProducts = [];
 
 async function loadCategories() {
   try {
@@ -583,10 +645,15 @@ async function loadCategories() {
         const li = document.createElement("li");
         li.dataset.category = cat.id;
         li.textContent = cat.name;
-        li.addEventListener("click", function () {
-          filterByCategory(cat.id);
-        });
         categoryList.appendChild(li);
+      });
+
+      // Add click event to all category items
+      document.querySelectorAll(".category-list li").forEach((li) => {
+        li.addEventListener("click", function() {
+          const categoryId = this.dataset.category;
+          filterByCategory(categoryId);
+        });
       });
     }
   } catch (error) {
@@ -595,45 +662,70 @@ async function loadCategories() {
 }
 
 async function filterByCategory(categoryId) {
+  console.log("Filter by category:", categoryId);
   currentFilters.category = categoryId === 'all' ? null : categoryId;
   
   document.querySelectorAll(".category-list li").forEach((li) => {
     li.classList.remove("active");
-    if (li.dataset.category == categoryId) {
-      li.classList.add("active");
-    }
   });
+  
+  document.querySelector(`[data-category="${categoryId}"]`).classList.add("active");
   
   await loadProducts();
 }
 
 async function filterByRating(rating) {
-  currentFilters.minRating = rating;
-  
-  document.querySelectorAll(".rate-option").forEach((opt) => {
-    opt.classList.remove("active");
-    if (parseInt(opt.dataset.rating) === rating) {
-      opt.classList.add("active");
-    }
-  });
+  if (currentFilters.minRating === rating) {
+    currentFilters.minRating = null;
+    document.querySelectorAll(".rate-option").forEach((opt) => {
+      opt.classList.remove("active");
+    });
+  } else {
+    currentFilters.minRating = rating;
+    document.querySelectorAll(".rate-option").forEach((opt) => {
+      opt.classList.remove("active");
+      if (parseInt(opt.dataset.rating) === rating) {
+        opt.classList.add("active");
+      }
+    });
+  }
   
   await loadProducts();
 }
 
 async function loadProducts() {
   const grid = document.getElementById("productsGrid");
-  grid.innerHTML = '<p style="grid-column: 1/-1; text-align: center; padding: 40px;">Loading products...</p>';
+  grid.innerHTML = '<div class="loading-message"><i class="fas fa-spinner fa-spin" style="font-size: 48px; margin-bottom: 20px;"></i><p>Loading products...</p></div>';
 
   try {
     const filters = {};
-    if (currentFilters.category) filters.category = currentFilters.category;
-    if (currentFilters.minRating) filters.minRating = currentFilters.minRating;
-    if (currentFilters.search) filters.search = currentFilters.search;
+    
+    // Handle category filter
+    if (currentFilters.category && currentFilters.category !== 'all') {
+      const categoryId = parseInt(currentFilters.category);
+      if (!isNaN(categoryId)) {
+        filters.category = categoryId;
+      }
+    }
+    
+    // Handle rating filter
+    if (currentFilters.minRating) {
+      filters.minRating = currentFilters.minRating;
+    }
+    
+    // Handle search filter
+    if (currentFilters.search && currentFilters.search.trim() !== '') {
+      filters.search = currentFilters.search.trim();
+    }
 
-    const products = await fetchProducts(filters);
+    console.log("Loading products with filters:", filters);
+    
+    allProducts = await fetchProducts(filters);
+    
+    console.log("Products loaded:", allProducts.length);
     
     const sortValue = document.getElementById("sortDropdown").value;
-    let sortedProducts = [...products];
+    let sortedProducts = [...allProducts];
     
     if (sortValue === "price-low") {
       sortedProducts.sort((a, b) => a.price - b.price);
@@ -646,7 +738,7 @@ async function loadProducts() {
     displayProducts(sortedProducts);
   } catch (error) {
     console.error("Products could not be loaded:", error);
-    grid.innerHTML = '<p style="grid-column: 1/-1; text-align: center; padding: 40px; color: #e74c3c;">Failed to load products. Please try again.</p>';
+    grid.innerHTML = '<div class="error-message"><i class="fas fa-exclamation-triangle" style="font-size: 48px; margin-bottom: 20px;"></i><p>Failed to load products. Please try again.</p></div>';
   }
 }
 
@@ -655,7 +747,7 @@ function displayProducts(products) {
   grid.innerHTML = "";
 
   if (products.length === 0) {
-    grid.innerHTML = '<p style="grid-column: 1/-1; text-align: center; padding: 40px;">No products found.</p>';
+    grid.innerHTML = '<div class="empty-message"><i class="fas fa-box-open" style="font-size: 48px; margin-bottom: 20px; color: #ddd;"></i><p>No products found matching your criteria.</p></div>';
     return;
   }
 
@@ -663,7 +755,6 @@ function displayProducts(products) {
     const card = document.createElement("div");
     card.classList.add("product-card");
 
-    // API'den gelen averageRating kullanılıyor
     const rating = product.averageRating || 0;
     const roundedRating = Math.round(rating);
 
@@ -681,7 +772,7 @@ function displayProducts(products) {
         <span class="rating-stars">${stars}</span>
         <span class="rating-count">(${rating > 0 ? rating.toFixed(1) : 'No rating'})</span>
       </div>
-      <button class="add-to-cart-btn">Add to cart</button>
+      <button class="add-to-cart-btn"><i class="fas fa-shopping-cart"></i> Add to cart</button>
     `;
 
     const cartBtn = card.querySelector(".add-to-cart-btn");

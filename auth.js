@@ -196,13 +196,31 @@ async function fetchProducts(filters = {}) {
     let url = `${API_BASE_URL}/products`;
     const params = new URLSearchParams();
 
-    if (filters.category) params.append("category", filters.category);
-    if (filters.minRating) params.append("minRating", filters.minRating);
-    if (filters.search) params.append("search", filters.search);
-
-    if (params.toString()) {
-      url += `/filter?${params.toString()}`;
+    // Category filter - müxtəlif variantları yoxlayırıq
+    if (filters.category) {
+      // Əgər category number-dirsə
+      if (typeof filters.category === 'number' || !isNaN(filters.category)) {
+        params.append("category", filters.category);
+      }
     }
+    
+    // Rating filter
+    if (filters.minRating) {
+      params.append("minRating", filters.minRating);
+    }
+    
+    // Search filter
+    if (filters.search && filters.search.trim() !== '') {
+      params.append("search", filters.search.trim());
+    }
+
+    // Parametrləri URL-ə əlavə edirik
+    if (params.toString()) {
+      url += `?${params.toString()}`;
+    }
+
+    console.log("Fetching URL:", url); // Debug
+    console.log("Filters:", filters); // Debug
 
     const token = getAuthToken();
     const headers = {
@@ -215,9 +233,16 @@ async function fetchProducts(filters = {}) {
 
     const response = await fetch(url, { headers });
 
-    if (!response.ok) throw new Error("Failed to fetch products");
+    if (!response.ok) {
+      const errorText = await response.text();
+      console.error("Response status:", response.status);
+      console.error("Error response:", errorText);
+      throw new Error(`Failed to fetch products: ${response.status}`);
+    }
 
-    return await response.json();
+    const data = await response.json();
+    console.log("Products received:", data.length); // Debug
+    return data;
   } catch (error) {
     console.error("Fetch products error:", error);
     return [];
@@ -538,21 +563,28 @@ async function fetchClientDetails() {
   }
 }
 
+// loadUsername funksiyasını bu şəkildə dəyişdirin
+
 function loadUsername() {
   const bodyData = localStorage.getItem("body");
   if (bodyData) {
     try {
       const body = JSON.parse(bodyData);
       const usernameElement = document.querySelector(".username-text");
-      if (usernameElement && body.username) {
-        usernameElement.innerHTML = body.username;
+      
+      // Username-i body obyektindən götürürük
+      if (usernameElement && body && body.username) {
+        usernameElement.textContent = body.username;
+      } else {
+        console.log("Username not found in body:", body);
       }
     } catch (error) {
       console.error("Error parsing localStorage data:", error);
     }
+  } else {
+    console.log("No body data in localStorage");
   }
 }
-
 
 
 function showNotification(message) {

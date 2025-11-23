@@ -326,8 +326,13 @@
         margin-top: 10px;
       }
 
-      .place-order-btn:hover {
+      .place-order-btn:hover:not(:disabled) {
         background-color: #c82333;
+      }
+
+      .place-order-btn:disabled {
+        opacity: 0.6;
+        cursor: not-allowed;
       }
 
       .checkbox-container {
@@ -769,7 +774,8 @@
 
         const placeOrderBtn = document.querySelector(".place-order-btn");
         if (placeOrderBtn) {
-          placeOrderBtn.addEventListener("click", function () {
+          placeOrderBtn.addEventListener("click", function (e) {
+            e.preventDefault();
             if (validateCheckoutForm()) {
               placeOrder();
             }
@@ -847,40 +853,94 @@
         return true;
       }
 
-      function placeOrder() {
+      async function placeOrder() {
         const cart = getCart();
-        const loggedInUser = JSON.parse(localStorage.getItem("loggedInUser"));
+        const token = getAuthToken();
 
-        const order = {
-          id: Date.now(),
-          user: loggedInUser,
-          items: cart,
-          total: cart.reduce(
-            (sum, item) => sum + item.price * item.quantity,
-            0
-          ),
-          date: new Date().toISOString(),
-          status: "pending",
-          shippingInfo: {
-            firstname: document.getElementById("firstname")?.value,
-            lastname: document.getElementById("lastname")?.value,
-            state: document.getElementById("state")?.value,
-            city: document.getElementById("city")?.value,
-            address: document.getElementById("address")?.value,
-            zip: document.getElementById("zip")?.value,
-            tel: document.getElementById("tel")?.value,
-            email: document.getElementById("email")?.value,
-          },
+        if (!token) {
+          alert("Please log in first!");
+          window.location.href = "Login.html";
+          return;
+        }
+
+        const placeOrderBtn = document.querySelector(".place-order-btn");
+        const originalText = placeOrderBtn.textContent;
+        placeOrderBtn.disabled = true;
+        placeOrderBtn.textContent = "Processing...";
+
+        const firstName = document.getElementById("firstname")?.value.trim();
+        const lastName = document.getElementById("lastname")?.value.trim();
+        const state = document.getElementById("state")?.value;
+        const city = document.getElementById("city")?.value.trim();
+        const address = document.getElementById("address")?.value.trim();
+        const zipCode = document.getElementById("zip")?.value.trim();
+        const phoneNumber = document.getElementById("tel")?.value.trim();
+        const email = document.getElementById("email")?.value.trim();
+
+        // Ensure all items have valid productId
+        const orderItems = cart.map((item) => ({
+          productId: parseInt(item.id),
+          quantity: parseInt(item.quantity),
+          price: parseFloat(item.price),
+        }));
+
+        const orderData = {
+          firstName: firstName,
+          lastName: lastName,
+          email: email,
+          phoneNumber: phoneNumber,
+          address: address,
+          city: city,
+          state: state,
+          zipCode: zipCode,
+          items: orderItems,
         };
 
-        let orders = JSON.parse(localStorage.getItem("orders")) || [];
-        orders.push(order);
-        localStorage.setItem("orders", JSON.stringify(orders));
+        console.log("Cart data:", cart);
+        console.log("Sending order data:", JSON.stringify(orderData, null, 2));
 
-        clearCart();
+        try {
+          const response = await fetch(
+            "http://195.26.245.5:9505/api/orders",
+            {
+              method: "POST",
+              headers: {
+                "Content-Type": "application/json",
+                Authorization: `Bearer ${token}`,
+              },
+              body: JSON.stringify(orderData),
+            }
+          );
 
-        alert("Order placed successfully! Order ID: " + order.id);
-        window.location.href = "index.html";
+          console.log("Response status:", response.status);
+
+          // Try to get error details even if response is not ok
+          let errorData;
+          try {
+            errorData = await response.json();
+            console.log("Response data:", errorData);
+          } catch (e) {
+            console.error("Could not parse response:", e);
+          }
+
+          if (!response.ok) {
+            const errorMessage = errorData?.message || errorData?.error || `Server error: ${response.status}`;
+            throw new Error(errorMessage);
+          }
+
+          console.log("Order created successfully:", errorData);
+
+          clearCart();
+
+          alert(`Order placed successfully! Order ID: ${errorData.id}`);
+          window.location.href = `order.html?orderId=${errorData.id}`;
+        } catch (error) {
+          console.error("Order error:", error);
+          alert(`Failed to place order: ${error.message}`);
+
+          placeOrderBtn.disabled = false;
+          placeOrderBtn.textContent = originalText;
+        }
       }
     </script>
   </body>
